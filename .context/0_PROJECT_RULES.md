@@ -1,32 +1,31 @@
-# PROJECT RULES: {{PROJECT_NAME}}
+# PROJECT RULES: cyclicality
 
-## Type: {{PROJECT_TYPE}}
+## Type: Research Paper Replication
 
 ## 1. Primary Objective
 
-* [Single sentence defining the goal]
+Replicate the cyclicality of R&D at the firm level analysis using NSF data.
 
 ## 2. Output Format
 
-* [e.g., 2-page brief, Python CLI, Data Table, Academic Paper]
+Academic Paper and Replication Code (R/DVC).
 
 ## 3. Specific Constraints
 
-* [e.g., Use only 2024 data]
-* [e.g., No external APIs allowed]
+* Use NSF data as primary source.
+* Maintain DVC for data versioning.
 
 ## 4. Source of Truth
 
-* [Path to main dataset or reference document]
+* NSF Data files in `data/` directory.
 
 ## 5. Team
 
 * **Lead**: @pedro
-* **Collaborators**: [Optional]
 
 ## 6. Deliverables
 
 | # | Deliverable | Status | Notes |
 |---|-------------|--------|-------|
-| D1 | [Deliverable 1] | Not Started | |
-| D2 | [Deliverable 2] | Not Started | |
+| D1 | Data Extraction from NSF | In Progress | |
+| D2 | Replication of Main Table | Not Started | |
