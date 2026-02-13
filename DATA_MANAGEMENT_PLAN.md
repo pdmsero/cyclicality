@@ -1,5 +1,26 @@
 # Cyclicality Data Management Plan
 
+## Strategy Update (February 12, 2026)
+
+### Decision
+Adopt a **baseline-first** workflow:
+1. Finish and validate a faithful Python/SQLite replication using current project data vintages.
+2. Freeze that state as the replication baseline.
+3. Run a controlled data refresh, source-by-source, with change attribution.
+
+### Why
+- Mixing code-porting changes and data-vintage changes makes failures ambiguous.
+- A frozen baseline lets us separate:
+  - implementation regressions, from
+  - genuine result movement due to newer data.
+
+### Immediate Gates Before Data Refresh
+- Gate A: SQLite conversion complete and verified (`meta_verification_log` failures = 0).
+- Gate B: Python outputs match baseline Stata outputs for target tables/figures.
+- Gate C: Provenance documented per source family (see `data/DATA_PROVENANCE_MAP.md`).
+
+Only after A/B/C are green do we update to newer vintages.
+
 ## Current State
 - **Total**: 948 MB across 1,301 files
 - **Stata (.dta)**: 806 MB (84 files) - already compressed
@@ -52,7 +73,28 @@ Key finding: **NSF data is NOT used in main firm-level analysis** (AllData.do us
 
 ---
 
-## Strategy 2: Update to Most Recent Dates
+## Strategy 2: Complete Baseline Replication (No Vintage Changes)
+
+### Scope
+- Keep existing input vintages fixed.
+- Port and validate transformation/model code against current data.
+- Document all joins/crosswalk behavior (NAICS/SIC/BEA mappings).
+
+### Actions
+1. Reconstruct Stata merge lineage in Python (including mapping tables and merge cardinalities).
+2. Reproduce baseline analysis outputs from SQLite-backed Python pipeline.
+3. Add regression tests:
+   - row counts at major pipeline checkpoints,
+   - key summary statistics,
+   - selected model outputs.
+4. Tag and freeze baseline artifacts:
+   - code revision,
+   - `data/cyclicality.db` snapshot metadata,
+   - replication output bundle.
+
+---
+
+## Strategy 3: Update to Most Recent Dates (Post-Baseline Only)
 
 ### Current Coverage Gaps
 
@@ -88,7 +130,7 @@ Compustat update is **blocking** - requires WRDS institutional access
 
 ---
 
-## Strategy 3: Convert to SQLite
+## Strategy 4: Convert to SQLite
 
 ### Conversion Priority
 
@@ -132,32 +174,29 @@ cyclicality.db
 
 ## Execution Order
 
-### Phase 1: NSF Cleanup (can start now)
-- [ ] Parse all NSF Excel files
-- [ ] Identify unique data vs. duplicates
-- [ ] Create NSF SQLite table
-- [ ] Archive raw Excel files
-- **Estimated savings**: 80-85 MB
+### Phase 1: Baseline Data Layer (complete)
+- [x] Convert project data sources into `data/cyclicality.db`
+- [x] Verify conversion integrity via `meta_verification_log`
+- [x] Keep originals unchanged for auditability
 
-### Phase 2: SQLite Conversion (can start now)
-- [ ] Convert export CSVs to SQLite
-- [ ] Convert IO tables (.numbers → export CSV → SQLite)
-- [ ] Convert KLEMS .dta files
-- [ ] Create unified instruments database
-- **Estimated savings**: 30-40 MB
+### Phase 2: Baseline Replication (in progress)
+- [ ] Port remaining Stata transformations/merges to Python
+- [ ] Validate baseline tables/figures against existing Stata outputs
+- [ ] Add automated parity checks for key outputs
 
-### Phase 3: Data Update (blocked on WRDS access)
-- [ ] Secure WRDS access
-- [ ] Download Compustat 2015-2024
-- [ ] Download BEA/FRED updates
-- [ ] Append to existing data
-- [ ] Re-run Stata pipeline
+### Phase 3: Freeze Baseline (required before updates)
+- [ ] Create reproducible baseline release marker (code + data metadata + outputs)
+- [ ] Write baseline acceptance report (what matches/what deviates)
 
-### Phase 4: Final SQLite Migration
-- [ ] Convert AllData.dta to SQLite
-- [ ] Convert intermediate .dta files
-- [ ] Verify analysis can run from SQLite
-- [ ] Archive .dta files
+### Phase 4: Source-by-Source Data Refresh (after Phase 3)
+- [ ] Refresh BEA/NIPA and FRED/SSA series first (public, low-friction)
+- [ ] Refresh NBER/CES and concordances
+- [ ] Refresh Compustat (WRDS-dependent)
+- [ ] Re-run pipeline after each source refresh and attribute deltas
+
+### Phase 5: Deferred NSF Modernization
+- [ ] Parse/deduplicate NSF raw Excel archive into separate pipeline
+- [ ] Integrate only if needed for target outputs
 
 ---
 

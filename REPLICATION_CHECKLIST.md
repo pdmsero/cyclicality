@@ -1,58 +1,50 @@
 # Replication Checklist: Cyclicality Project
 
-## Data Sources
+## Gate-Based Workflow
 
-- **Nominal Values:**  
-  **Table 1.5.5. Gross Domestic Product, Expanded Detail**  
-  [Billions of dollars]  
-  [Last Revised: June 26, 2025 – Next Release: July 30, 2025]  
-  [BEA Table 1.5.5 Source](https://apps.bea.gov/iTable/?reqid=19&step=2&isuri=1&categories=survey&_gl=1*kfq9yj*_ga*MzgzNzk3NjcyLjE3NTE0MTI1ODA.*_ga_J4698JNNFT*czE3NTE0MTI1ODAkbzEkZzEkdDE3NTE0MTI1OTQkajQ2JGwwJGgw#eyJhcHBpZCI6MTksInN0ZXBzIjpbMSwyLDMsM10sImRhdGEiOltbImNhdGVnb3JpZXMiLCJTdXJ2ZXkiXSxbIk5JUEFfVGFibGVfTGlzdCIsIjM1Il0sWyJGaXJzdF9ZZWFyIiwiMjAyMyJdLFsiTGFzdF9ZZWFyIiwiMjAyNSJdLFsiU2NhbGUiLCItOSJdLFsiU2VyaWVzIiwiQSJdLFsiU2VsZWN0X2FsbF95ZWFycyIsIjEiXV19)
+### Gate A: Data Layer Integrity
+- [x] Convert project sources into `data/cyclicality.db`
+- [x] Verify conversion checks (`meta_verification_log` failures = 0)
+- [x] Confirm key row counts (`raw_compustat`, `processed_alldata`)
+- [x] Preserve original source files in `data/`
 
-- **Price Indices:**  
-  **Table 1.5.4. Price Indexes for Gross Domestic Product, Expanded Detail**  
-  [Index numbers, 2017=100]  
-  [Last Revised: June 26, 2025 – Next Release: July 30, 2025]  
-  [BEA Table 1.5.4 Source](https://apps.bea.gov/iTable/?reqid=19&step=2&isuri=1&categories=survey&_gl=1*kfq9yj*_ga*MzgzNzk3NjcyLjE3NTE0MTI1ODA.*_ga_J4698JNNFT*czE3NTE0MTI1ODAkbzEkZzEkdDE3NTE0MTI1OTQkajQ2JGwwJGgw#eyJhcHBpZCI6MTksInN0ZXBzIjpbMSwyLDMsM10sImRhdGEiOltbImNhdGVnb3JpZXMiLCJTdXJ2ZXkiXSxbIk5JUEFfVGFibGVfTGlzdCIsIjM1Il0sWyJGaXJzdF9ZZWFyIiwiMjAyMyJdLFsiTGFzdF9ZZWFyIiwiMjAyNSJdLFsiU2NhbGUiLCItOSJdLFsiU2VyaWVzIiwiQSJdLFsiU2VsZWN0X2FsbF95ZWFycyIsIjEiXV19)
+### Gate B: Baseline Parity (Stata -> Python)
+- [x] Port merge lineage checkpoints from `code/stata/supporting/CreatingUniqueDataset.do`
+- [ ] Port baseline transformations from `code/stata/AllData.do`
+- [x] Validate merge checkpoint row counts against baseline outputs (`data/PARITY_CHECKPOINTS.md`)
+- [ ] Reproduce target tables/figures from the paper using Python pipeline (pending model-level parity)
 
-This document tracks the step-by-step process for fully replicating the analysis and tables in the working paper draft, Cyclicality of R&D at the Firm Level, using the scripts and data in Google Drive, ported to Python.
 
-## General Steps
-- [ ] Inventory all scripts and data files in `/Data files`
-- [ ] Review the working paper and list all tables/results to be replicated
-- [ ] Map each table/result to the relevant script(s) and data
-- [ ] Set up Python environment and Google Drive access
-- [ ] **Port and validate BEA and GDP aggregate data scripts in Python**
-- [ ] **Update BEA and GDP aggregate data to the present**
-- [ ] **Document data sources and update steps**
-- [ ] Port each relevant firm-level script to Python (see below)
-- [ ] Verify Python outputs match those in the paper
-- [ ] Document any missing or unclear steps
+### Baseline Parity Artifacts
+- [x] `data/PARITY_CHECKPOINTS.md`
+- [x] `data/PARITY_VARIABLE_CHECKS.md`
+- [x] `data/MAPPING_INTEGRITY_REPORT.md`
+- [x] `data/TRANSFORMATION_COVERAGE_AUDIT.md`
+- [x] `data/BASELINE_ACCEPTANCE_REPORT.md`
+- [x] `data/TRANSFORMATION_STAGE1_PARITY.md`
+- [x] `data/TRANSFORMATION_STAGE1_REPORT.md`
 
-## Aggregate Data (BEA & GDP) Porting Progress
-- [ ] `BEA.do` → Python
-- [ ] `GDP.do` → Python
-- [ ] Validate processed aggregate data against working paper tables/figures
-- [ ] Update BEA and GDP data to most recent available
-- [ ] Document BEA and GDP data sources, download dates, and any changes
+### Gate C: Baseline Documentation
+- [x] Create provenance map (`data/DATA_PROVENANCE_MAP.md`)
+- [x] Create baseline snapshot metadata (`data/BASELINE_SNAPSHOT.md`)
+- [ ] Create/complete data dictionary (`data/DATA_DICTIONARY.md`)
+- [x] Write baseline acceptance report (`data/BASELINE_ACCEPTANCE_REPORT.md`)
 
-## Script Porting Progress (Firm-level)
-- [ ] `AllData.do` → Python
-- [ ] `NBER.do` → Python
-- [ ] `CreatingUniqueDataset.do` → Python
-- [ ] Any other relevant scripts (add as discovered)
+## Post-Gate Refresh Plan (Only After A/B/C)
 
-## Table/Result Verification
-- [ ] Table 1: [Description] — [ ] Script mapped: ____ — [ ] Output matches
-- [ ] Table 2: [Description] — [ ] Script mapped: ____ — [ ] Output matches
-- [ ] ... (add as discovered)
+### Public Data Refresh
+- [ ] Refresh BEA/NIPA series
+- [ ] Refresh FRED/SSA series
+- [ ] Refresh NBER/CES and concordances
 
-## Data Access
-- [ ] Set up Google Drive API or `gdown`/`PyDrive` for direct data access
-- [ ] Test reading `.dta` files in Python (e.g., with `pandas.read_stata`)
+### Licensed Data Refresh
+- [ ] Refresh Compustat via WRDS
 
-## Issues & Notes
-- [ ] [Add any missing, unclear, or problematic steps here]
+### Controlled Re-run
+- [ ] Re-run pipeline source-by-source
+- [ ] Attribute result changes by source vintage
+- [ ] Document deltas vs baseline
 
----
+## Deferred
 
-**Update this checklist as you progress. Add new tasks, tables, or scripts as needed.** 
+- [ ] NSF raw modernization pipeline (`code/python/parse_nsf_excel.py`) if needed for target outputs

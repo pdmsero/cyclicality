@@ -1,64 +1,48 @@
-# Cyclicality of R&D at the Firm Level: Replicating the Working Paper Analysis
+# Cyclicality of R&D at the Firm Level
 
-## Data Sources
+This repository is the local replication and Python-port workspace for the paper.
 
-- **Nominal Values:**  
-  **Table 1.5.5. Gross Domestic Product, Expanded Detail**  
-  [Billions of dollars]  
-  [Last Revised: June 26, 2025 – Next Release: July 30, 2025]  
-  [BEA Table 1.5.5 Source](https://apps.bea.gov/iTable/?reqid=19&step=2&isuri=1&categories=survey&_gl=1*kfq9yj*_ga*MzgzNzk3NjcyLjE3NTE0MTI1ODA.*_ga_J4698JNNFT*czE3NTE0MTI1ODAkbzEkZzEkdDE3NTE0MTI1OTQkajQ2JGwwJGgw#eyJhcHBpZCI6MTksInN0ZXBzIjpbMSwyLDMsM10sImRhdGEiOltbImNhdGVnb3JpZXMiLCJTdXJ2ZXkiXSxbIk5JUEFfVGFibGVfTGlzdCIsIjM1Il0sWyJGaXJzdF9ZZWFyIiwiMjAyMyJdLFsiTGFzdF9ZZWFyIiwiMjAyNSJdLFsiU2NhbGUiLCItOSJdLFsiU2VyaWVzIiwiQSJdLFsiU2VsZWN0X2FsbF95ZWFycyIsIjEiXV19)
+## Current Operating Mode
 
-- **Price Indices:**  
-  **Table 1.5.4. Price Indexes for Gross Domestic Product, Expanded Detail**  
-  [Index numbers, 2017=100]  
-  [Last Revised: June 26, 2025 – Next Release: July 30, 2025]  
-  [BEA Table 1.5.4 Source](https://apps.bea.gov/iTable/?reqid=19&step=2&isuri=1&categories=survey&_gl=1*kfq9yj*_ga*MzgzNzk3NjcyLjE3NTE0MTI1ODA.*_ga_J4698JNNFT*czE3NTE0MTI1ODAkbzEkZzEkdDE3NTE0MTI1OTQkajQ2JGwwJGgw#eyJhcHBpZCI6MTksInN0ZXBzIjpbMSwyLDMsM10sImRhdGEiOltbImNhdGVnb3JpZXMiLCJTdXJ2ZXkiXSxbIk5JUEFfVGFibGVfTGlzdCIsIjM1Il0sWyJGaXJzdF9ZZWFyIiwiMjAyMyJdLFsiTGFzdF9ZZWFyIiwiMjAyNSJdLFsiU2NhbGUiLCItOSJdLFsiU2VyaWVzIiwiQSJdLFsiU2VsZWN0X2FsbF95ZWFycyIsIjEiXV19)
+- Baseline-first workflow: reproduce existing results with fixed vintages before any data refresh.
+- Canonical data layer: `data/cyclicality.db`.
+- Original source files are retained in `data/` for verification and auditability.
 
-## Project Overview
-This project aims to fully replicate the analysis and tables presented in the working paper draft, **Cyclicality of R&D at the Firm Level**, using the original scripts and data in `/Data files` (Google Drive). The ultimate goal is to port all analysis to Python for simplicity and reproducibility, while keeping all data in Google Drive (no local copies).
+## Project Status (as of 2026-02-12)
 
-## Data Location
-- **All data and original scripts are stored in Google Drive:**
-  - `/My Drive/Work/Research/Papers/Cyclicality of R&D at the Firm Level/Data files`
-- Data will be accessed directly from Google Drive using Python tools (e.g., `gdown`, `PyDrive`, or Google Drive API).
+- SQLite conversion completed and verified (`meta_verification_log` failures = 0).
+- Provenance map created at `data/DATA_PROVENANCE_MAP.md`.
+- Next focus: Python parity with baseline Stata outputs.
 
-## Aggregate Data Processing Scripts
-- Python scripts for processing aggregate BEA and GDP data are located in the `scripts/` directory:
-  - `scripts/process_bea_data.py` — Processes industry value added and related aggregates from BEA. See [BEA Industry Economic Accounts](https://www.bea.gov/data/industry).
-  - `scripts/process_gdp_data.py` — Processes macroeconomic GDP data. See [BEA NIPA GDP Data](https://www.bea.gov/data/gdp/gross-domestic-product).
-- Update the file paths as needed to match your local or cloud data structure.
+## Repository Layout
 
-## Original Scripts and Data Files
-Below are the main scripts and data files found in `/Data files`:
+- `code/stata/`: original Stata scripts used in the paper pipeline.
+- `code/python/convert_to_sqlite.py`: conversion script from source files to SQLite.
+- `data/cyclicality.db`: unified SQLite database for analysis.
+- `DATA_MANAGEMENT_PLAN.md`: execution strategy and phases.
+- `REPLICATION_CHECKLIST.md`: operational checklist for baseline parity and refresh.
+- `ANALYSIS_PLAN.md`: analysis sequencing and validation priorities.
 
-- `AllData.do` — Main Stata script for data processing and analysis (1400+ lines)
-- `NBER.do`, `BEA.do`, `GDP.do` — Stata scripts for specific data sources
-- `CreatingUniqueDataset.do` — Script for dataset construction
-- `.dta` files — Stata data files (e.g., `AllData.dta`, `NBER_EXPORTS.dta`, `BEA_ValueAdded.dta`, etc.)
-- `StockMarketData.dta`, `AllCompustat.dta`, `Exports.dta`, etc. — Additional data sources
+## Data Sources (high level)
 
-**Note:** Only scripts and data relevant to the tables/results in the working paper will be ported and documented in detail. As we cross-check with the draft, this list will be refined.
+- Compustat (WRDS)
+- NBER-CES manufacturing datasets
+- BEA industry and NIPA data
+- FRED macro/interest rate series
+- SSA AWI
+- Census concordances (NAICS/SIC)
 
-## Planned Workflow
-1. **Inventory and review all scripts and data files.**
-2. **Cross-check each table/result in the working paper with the scripts to identify dependencies.**
-3. **Port each relevant script to Python, ensuring outputs match the draft results.**
-4. **Access all data directly from Google Drive using Python tools.**
-5. **Document each step and update the checklist as we progress.**
+See `data/DATA_PROVENANCE_MAP.md` for detailed source-family mapping, confidence levels, and format notes.
 
-## Environment Setup
-- Python 3.x
-- Recommended packages: `pandas`, `numpy`, `statsmodels`, `gdown` or `PyDrive`, `stata_kernel` (for reference), and any others as needed.
-- Instructions for Google Drive authentication will be provided in the checklist as needed.
+## Baseline-First Rule
 
-## Documentation
-- All documentation, including this README and the replication checklist, will be kept in the `/cyclicality` GitHub folder.
+Do not refresh to newer vintages until all of the following are true:
 
----
-
-**For detailed progress and next steps, see `REPLICATION_CHECKLIST.md`.**
+1. Conversion integrity checks pass.
+2. Python outputs match baseline Stata outputs for target tables/figures.
+3. Baseline snapshot and provenance are documented.
 
 ## Notes
 
-Project state is tracked in `workspace.db` and dashboard views. Legacy `.context/` files were archived.
-
+- NSF modernization remains deferred unless needed for a target output.
+- Use `DATA_MANAGEMENT_PLAN.md` as the source of truth for execution order.
