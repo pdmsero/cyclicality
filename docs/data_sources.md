@@ -42,6 +42,39 @@ Not explicitly identifiable from local file metadata; verify against project ing
 Provider/publication is not explicit in local metadata for this source group; verify provenance from ingestion scripts/notes before citation. Binary analytical formats are present; variable labels and full schema should be validated with native tooling before analysis changes. Limited header-level field verification was possible from inspectable text/metadata.
 
 
+## NSF Industrial R&D Survey — structured archive (data/cyclicality.db)
+
+**Location**
+data/cyclicality.db — tables: `nsf_observations`, `nsf_us_aggregates`, `nsf_size_breakdowns`, `nsf_source_files`, `nsf_industry_names`, `nsf_series_catalogue`
+
+**Source**
+US National Science Foundation, Industrial Research and Development surveys 1953–2009 (published 1956–2011). Raw Excel workbooks in `data/industry/nsf_raw/`. Superseded by the BRDIS from 2008.
+
+**Description**
+Seven structured tables extracted from 1,246 parsed Excel sheets across 1,061 raw workbooks. Full schema, series definitions, suppression flags, and known gaps are documented in `docs/nsf_rd_codebook.md`.
+
+| Table | Rows | Content |
+|---|---|---|
+| `nsf_observations` | 115,304 | Industry × year observations, all series |
+| `nsf_size_breakdowns` | 261,612 | Industry × employment-size-class cross-sections |
+| `nsf_us_aggregates` | 16,309 | US-total time series by source of funds |
+| `nsf_category_timeseries` | 912 | Category × year observations (energy source, research field, geographic, FFRDC) |
+| `nsf_source_files` | 1,246 | Provenance record per parsed sheet |
+| `nsf_industry_names` | 421 | Distinct raw industry name strings |
+| `nsf_series_catalogue` | 34 | Series code definitions and descriptions |
+
+**Coverage**
+- Time: 1953–2014 (`nsf_observations`); 1953–2007 (`nsf_us_aggregates`); 1953–2008 (`nsf_size_breakdowns`); 1957–1996 (`nsf_category_timeseries`)
+- Geography: US industries (SIC era 1953–1996; NAICS from 1997)
+- Unit of observation: Industry × survey-year; size-class × survey-year
+
+**Caveats**
+Dollar values are consistently in millions of current dollars but label conventions vary across vintages. SIC codes are missing for 7,657 rows in `nsf_observations` due to merged-cell formatting. Multi-vintage design: where the same industry × year appears in multiple workbooks, all versions are retained (use window function or vintage filter before analysis). No canonical SIC/NAICS crosswalk is attached; analysts linking to other industry-level sources must build their own mapping from the 421 distinct `industry_name_norm` strings. See `docs/nsf_rd_codebook.md` for full details.
+
+**Ingestion**
+`code/python/ingest_nsf_archival.py --rebuild`
+
+
 ## data/industry
 
 **Location**

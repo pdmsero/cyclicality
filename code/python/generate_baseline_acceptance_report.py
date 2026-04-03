@@ -26,7 +26,16 @@ def parse_parity_var_failures(path: Path) -> int:
     return sum(fail_counts)
 
 
-def transformation_coverage(conn: sqlite3.Connection) -> tuple[int, int, int, int, int, int]:
+def _stage_cols(conn: sqlite3.Connection, table: str) -> set:
+    exists = conn.execute(
+        "SELECT COUNT(*) FROM sqlite_master WHERE type='table' AND name=?", (table,)
+    ).fetchone()[0]
+    if not exists:
+        return set()
+    return {row[1].lower() for row in conn.execute(f"PRAGMA table_info({table})")}
+
+
+def transformation_coverage(conn: sqlite3.Connection) -> tuple[int, int, int, int, int, int, int]:
     cols = {row[1].lower() for row in conn.execute("PRAGMA table_info(processed_alldata)")}
     gen_vars = []
     for line in ALLDATA_DO.read_text(encoding="utf-8", errors="ignore").splitlines():
@@ -39,15 +48,22 @@ def transformation_coverage(conn: sqlite3.Connection) -> tuple[int, int, int, in
         if v not in seen:
             seen.add(v)
             unique.append(v)
+
+    stage1_cols = _stage_cols(conn, "processed_alldata_stage1")
+    stage2_cols = _stage_cols(conn, "processed_alldata_stage2")
+    stage3_cols = _stage_cols(conn, "processed_alldata_stage3")
+    stage4_cols = _stage_cols(conn, "processed_alldata_stage4")
+
+    all_pipeline_cols = stage1_cols | stage2_cols | stage3_cols | stage4_cols
+
     present = sum(1 for v in unique if v in cols)
-    stage1_cols = {row[1].lower() for row in conn.execute("PRAGMA table_info(processed_alldata_stage1)")} if conn.execute("SELECT COUNT(*) FROM sqlite_master WHERE type='table' AND name='processed_alldata_stage1'").fetchone()[0] else set()
-    stage2_cols = {row[1].lower() for row in conn.execute("PRAGMA table_info(processed_alldata_stage2)")} if conn.execute("SELECT COUNT(*) FROM sqlite_master WHERE type='table' AND name='processed_alldata_stage2'").fetchone()[0] else set()
-    stage3_cols = {row[1].lower() for row in conn.execute("PRAGMA table_info(processed_alldata_stage3)")} if conn.execute("SELECT COUNT(*) FROM sqlite_master WHERE type='table' AND name='processed_alldata_stage3'").fetchone()[0] else set()
     stage1_present = sum(1 for v in unique if v in stage1_cols)
     stage2_present = sum(1 for v in unique if v in stage2_cols)
     stage3_present = sum(1 for v in unique if v in stage3_cols)
-    missing = len(unique) - present
-    return len(unique), present, missing, stage1_present, stage2_present, stage3_present
+    stage4_present = sum(1 for v in unique if v in stage4_cols)
+    pipeline_present = sum(1 for v in unique if v in all_pipeline_cols)
+    missing = len(unique) - pipeline_present
+    return len(unique), present, missing, stage1_present, stage2_present, stage3_present, stage4_present
 
 
 def exists(path: Path) -> bool:
@@ -59,7 +75,7 @@ def main() -> int:
         verify_failures = int(conn.execute("SELECT COUNT(*) FROM meta_verification_log WHERE passed=0").fetchone()[0])
         raw_comp = int(conn.execute("SELECT COUNT(*) FROM raw_compustat").fetchone()[0])
         proc_all = int(conn.execute("SELECT COUNT(*) FROM processed_alldata").fetchone()[0])
-        unique_gen, present_gen, missing_gen, stage1_present_gen, stage2_present_gen, stage3_present_gen = transformation_coverage(conn)
+        unique_gen, present_gen, missing_gen, stage1_present_gen, stage2_present_gen, stage3_present_gen, stage4_present_gen = transformation_coverage(conn)
 
     parity_tol_fail = parse_parity_var_failures(PARITY_VAR_MD)
     stage1_parity_path = ROOT / "data" / "TRANSFORMATION_STAGE1_PARITY.md"
@@ -75,6 +91,7 @@ def main() -> int:
     gate_b_stage1 = (stage1_parity_fail == 0 and stage1_present_gen >= present_gen)
     gate_b_stage2 = (stage2_parity_fail == 0 and stage2_present_gen >= stage1_present_gen)
     gate_b_stage3 = (stage3_parity_fail == 0 and stage3_present_gen >= stage2_present_gen)
+    gate_b_stage4 = (stage4_present_gen >= stage3_present_gen)
     gate_b = gate_b_merge and gate_b_transform
     gate_c = all(
         exists(ROOT / p)
@@ -119,7 +136,8 @@ def main() -> int:
     lines.append(f"- Generated vars present in `processed_alldata_stage1`: `{stage1_present_gen}`")
     lines.append(f"- Generated vars present in `processed_alldata_stage2`: `{stage2_present_gen}`")
     lines.append(f"- Generated vars present in `processed_alldata_stage3`: `{stage3_present_gen}`")
-    lines.append(f"- Generated vars missing from `processed_alldata`: `{missing_gen}`")
+    lines.append(f"- Generated vars present in `processed_alldata_stage4`: `{stage4_present_gen}`")
+    lines.append(f"- Generated vars missing from pipeline (all stages): `{missing_gen}`")
     lines.append("")
 
     lines.append("## Interpretation")

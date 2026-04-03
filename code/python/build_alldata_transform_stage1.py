@@ -81,6 +81,87 @@ def build_prefixed_block(df: pd.DataFrame, prefix: str, denom_col: str) -> list[
     return made
 
 
+# QCEW compound sector codes: some 2-digit NAICS ranges share one QCEW code
+_QCEW_COMPOUND: dict[str, str] = {
+    "31": "31-33", "32": "31-33", "33": "31-33",
+    "44": "44-45", "45": "44-45",
+    "48": "48-49", "49": "48-49",
+}
+
+
+def apply_qcew_wages(df: pd.DataFrame, conn: sqlite3.Connection) -> pd.DataFrame:
+    """Override national SSA averagewage with QCEW industry-level wages (2001+).
+
+    Hierarchy: 6-digit NAICS → 5 → 4 → 3 → 2-digit sector → all-private.
+    Falls back to the existing SSA averagewage where no QCEW match is found
+    (years < 2001 or suppressed industries).
+    """
+    qcew = pd.read_sql_query(
+        "SELECT year, naics_code, naics_digits, avg_annual_pay "
+        "FROM bls_qcew_wages WHERE disclosure_code = '' AND year >= 2001",
+        conn,
+    )
+    if qcew.empty:
+        return df
+
+    # Integer year for joining
+    df = df.copy()
+    df["_year_int"] = pd.to_numeric(df["year"], errors="coerce").astype("Int64")
+    naics_str = df["naics"].fillna("").astype(str).str.strip()
+
+    # Build NAICS prefix columns (raw 2-digit before compound mapping)
+    df["_n6"] = naics_str.str[:6]
+    df["_n5"] = naics_str.str[:5]
+    df["_n4"] = naics_str.str[:4]
+    df["_n3"] = naics_str.str[:3]
+    df["_n2_raw"] = naics_str.str[:2]
+    df["_n2"] = df["_n2_raw"].map(lambda x: _QCEW_COMPOUND.get(x, x))
+
+    # Build per-level lookups keyed by (year, naics_code)
+    for lvl, col in [(6, "_n6"), (5, "_n5"), (4, "_n4"), (3, "_n3"), (2, "_n2"), (0, None)]:
+        subset = qcew[qcew["naics_digits"] == lvl][["year", "naics_code", "avg_annual_pay"]].copy()
+        if subset.empty:
+            df[f"_wage_{lvl}"] = np.nan
+            continue
+        subset = subset.rename(columns={"naics_code": f"_k{lvl}", "avg_annual_pay": f"_wage_{lvl}"})
+        subset["_year_int"] = subset["year"].astype("Int64")
+        if lvl == 0:
+            # all-private: naics_code = "10", merge on year only
+            subset_ap = subset[["_year_int", f"_wage_{lvl}"]].drop_duplicates("_year_int")
+            df = df.merge(subset_ap, on="_year_int", how="left")
+        else:
+            df = df.merge(
+                subset[["_year_int", f"_k{lvl}", f"_wage_{lvl}"]],
+                left_on=["_year_int", col],
+                right_on=["_year_int", f"_k{lvl}"],
+                how="left",
+            ).drop(columns=[f"_k{lvl}"])
+
+    # Coalesce finest to coarsest, then fall back to SSA national average
+    qcew_wage = (
+        df["_wage_6"]
+        .combine_first(df["_wage_5"])
+        .combine_first(df["_wage_4"])
+        .combine_first(df["_wage_3"])
+        .combine_first(df["_wage_2"])
+        .combine_first(df["_wage_0"])
+    )
+    df["averagewage"] = qcew_wage.combine_first(df["averagewage"])
+
+    # Log coverage
+    n_qcew = qcew_wage.notna().sum()
+    n_ssa = df["averagewage"].notna().sum() - n_qcew
+    print(
+        f"  QCEW wage coverage: {n_qcew:,} firm-years from QCEW, "
+        f"{n_ssa:,} remaining from SSA national average"
+    )
+
+    # Clean up temporary columns
+    tmp_cols = [c for c in df.columns if c.startswith("_")]
+    df = df.drop(columns=tmp_cols)
+    return df
+
+
 def transform_stage1(
     df: pd.DataFrame,
 ) -> tuple[pd.DataFrame, list[str], int, int, int]:
@@ -173,7 +254,9 @@ def transform_stage1(
 def main() -> int:
     warnings.simplefilter("ignore", category=pd.errors.PerformanceWarning)
     with sqlite3.connect(DB_PATH) as conn:
-        base_df = pd.read_sql_query(f"SELECT * FROM processed_alldata", conn)
+        base_df = pd.read_sql_query("SELECT * FROM processed_alldata", conn)
+        print("Applying QCEW industry-level wages…")
+        base_df = apply_qcew_wages(base_df, conn)
     df, generated, rows_before, rows_after_nonneg, rows_after_nonmissing = transform_stage1(base_df)
 
     # Persist stage table.

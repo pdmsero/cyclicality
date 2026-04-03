@@ -132,7 +132,11 @@ def transform_stage3(
 def main() -> int:
     warnings.simplefilter("ignore", category=pd.errors.PerformanceWarning)
     with sqlite3.connect(DB_PATH) as conn:
-        stage2_df = pd.read_sql_query("SELECT * FROM processed_alldata_stage2", conn)
+        stage2_df = pd.concat(
+            pd.read_sql_query("SELECT * FROM processed_alldata_stage2", conn,
+                              chunksize=20_000),
+            ignore_index=True,
+        )
 
     out_df, generated, skipped, assumptions = transform_stage3(stage2_df)
 
