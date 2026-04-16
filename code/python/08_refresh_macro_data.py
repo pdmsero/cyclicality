@@ -39,9 +39,28 @@ import pandas as pd
 ROOT = Path(__file__).resolve().parents[2]
 DATA = ROOT / "data"
 BEA_DIR = DATA / "industry" / "bea"
-PROC_DIR = DATA / "processed"
+PROC_DIR = DATA / "stata_baseline"
 
 warnings.filterwarnings("ignore", category=pd.errors.PerformanceWarning)
+
+# ---------------------------------------------------------------------------
+# Load .env from project root (if present) so FRED_API_KEY etc. are available
+# without requiring a shell export.  python-dotenv is optional; fall back to
+# a simple parser if it is not installed.
+# ---------------------------------------------------------------------------
+_env_path = ROOT / ".env"
+if _env_path.exists():
+    try:
+        from dotenv import load_dotenv  # type: ignore
+        load_dotenv(_env_path, override=False)
+    except ImportError:
+        # Minimal .env parser: KEY=VALUE lines, no interpolation
+        with open(_env_path) as _f:
+            for _line in _f:
+                _line = _line.strip()
+                if _line and not _line.startswith("#") and "=" in _line:
+                    _k, _, _v = _line.partition("=")
+                    os.environ.setdefault(_k.strip(), _v.strip())
 
 
 # ---------------------------------------------------------------------------

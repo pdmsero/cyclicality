@@ -749,7 +749,8 @@ if __name__ == "__main__":
     args = parser.parse_args()
 
     # Inject bootstrap setting into module-level constant used by run_production_functions
-    import build_alldata_transform_stage4 as _self
+    import sys as _sys
+    _self = _sys.modules[__name__]
     _self.N_BOOTSTRAP = args.bootstrap
 
     main()

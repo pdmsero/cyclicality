@@ -83,8 +83,29 @@ RESULTS_DIR.mkdir(exist_ok=True)
 
 def load_data() -> pd.DataFrame:
     con = sqlite3.connect(DB_PATH)
-    df = pd.read_sql("SELECT * FROM processed_alldata_stage3", con)
+    con.execute("PRAGMA cache_size = -8192")   # 8 MB page cache (default is 2 MB per kB setting)
+    con.execute("PRAGMA mmap_size = 0")        # disable mmap to avoid double-mapping 3 GB file
+    # Enumerate only the columns required by this script to stay well under 4 GB RAM.
+    existing = {r[1] for r in con.execute("PRAGMA table_info(processed_alldata_stage3)").fetchall()}
+    needed_prefixes = (
+        "d_", "dev_", "f_d_", "f_dev_",                          # growth/deviation/lead vars
+        "z_xrd_", "l_z_xrd_", "l2_z_xrd_",                       # R&D ratios + lags
+        "r_gdp_", "r_va_", "r_go_", "r_nber_",                   # deflated financials
+        "l_r_gdp_", "l_r_va_", "l_r_go_", "l_r_nber_",           # L1 deflated financials
+        "l2_r_gdp_", "l2_r_va_", "l2_r_go_", "l2_r_nber_",       # L2 deflated financials
+        "r_inv_", "r_nberinv_",                                    # investment-deflated
+    )
+    id_cols  = ["key", "year", "sic"]
+    misc     = ["emp", "KZ", "KZ_1", "KZ_2", "KZ_3", "KZ_4",
+                "WW", "WW_1", "WW_2", "WW_3", "WW_4"]
+    sel = sorted(set(
+        id_cols + misc +
+        [c for c in existing if any(c.startswith(p) for p in needed_prefixes)]
+    ))
+    sql = f"SELECT {', '.join(c for c in sel if c in existing)} FROM processed_alldata_stage3"
+    df = pd.read_sql(sql, con, dtype="float32")
     con.close()
+    df["key"]  = df["key"].astype(str)
     df["year"] = pd.to_numeric(df["year"], errors="coerce").astype("Int64")
     df["sic"]  = pd.to_numeric(df["sic"],  errors="coerce")
     df = df.sort_values(["key", "year"]).reset_index(drop=True)

@@ -10,9 +10,11 @@
 
 ### Gate B: Baseline Parity (Stata -> Python)
 - [x] Port merge lineage checkpoints from `code/stata/supporting/CreatingUniqueDataset.do`
-- [ ] Port baseline transformations from `code/stata/AllData.do`
+- [x] Port baseline transformations from `code/stata/AllData.do`
+      (stages 1–4: scripts 10–13; stage3 coverage 83.78% of AllData.do gen/egen vars)
 - [x] Validate merge checkpoint row counts against baseline outputs (`data/PARITY_CHECKPOINTS.md`)
-- [ ] Reproduce target tables/figures from the paper using Python pipeline (pending model-level parity)
+- [x] Reproduce target tables/figures from the paper using Python pipeline
+      (scripts 30–40; results in results/; model Table 4 reproduced via perturbation/VFI/projection)
 
 
 ### Baseline Parity Artifacts
@@ -27,7 +29,7 @@
 ### Gate C: Baseline Documentation
 - [x] Create provenance map (`data/DATA_PROVENANCE_MAP.md`)
 - [x] Create baseline snapshot metadata (`data/BASELINE_SNAPSHOT.md`)
-- [ ] Create/complete data dictionary (`data/DATA_DICTIONARY.md`)
+- [x] Create/complete data dictionary (`data/DATA_DICTIONARY.md`)
 - [x] Write baseline acceptance report (`data/BASELINE_ACCEPTANCE_REPORT.md`)
 
 ## Post-Gate Refresh Plan (Only After A/B/C)

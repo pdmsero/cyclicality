@@ -71,11 +71,79 @@ RESULTS_DIR.mkdir(exist_ok=True)
 # ---------------------------------------------------------------------------
 
 def load_data() -> pd.DataFrame:
+    """Load only the columns required by scripts 30 regressions.
+
+    The full stage3 table has 416 columns (~500 MB at float64).  Selecting
+    only the ~100 columns actually used reduces the in-process footprint to
+    ~120 MB and avoids OOM on machines with <4 GB RAM.
+    """
+    # Identifiers always needed
+    _id_cols = ["key", "year", "sic"]
+
+    # R&D dependent variables (all deflators)
+    _xrd_deps = [
+        "d_ipr_xrd", "d_gdp_xrd", "d_va_xrd", "d_go_xrd", "d_nber_xrd",
+        "z_xrd_sale", "z_xrd_va", "z_xrd_va_a", "z_xrd_capx",
+    ]
+    # Lagged R&D ratios (Table 9 models B/C/E/F)
+    _xrd_lags = [f"l_{c}" for c in ["z_xrd_sale", "z_xrd_va", "z_xrd_capx"]] + \
+                [f"l2_{c}" for c in ["z_xrd_sale", "z_xrd_va", "z_xrd_capx"]]
+
+    # Output measures (all deflators, plus lagged)
+    _prefs = ["gdp", "va", "go", "nber"]
+    _out_base = (
+        [f"d_{p}_sale"   for p in _prefs] +
+        [f"d_{p}_va"     for p in _prefs] +
+        [f"d_{p}_sale_i" for p in _prefs] +
+        [f"l_d_{p}_sale" for p in _prefs] +
+        [f"l_d_{p}_va"   for p in _prefs]
+    )
+    # Asymmetric growth (Table 10)
+    _asym = (
+        ["d_h_sale", "d_l_sale", "d_h_va", "d_l_va",
+         "d_h_GDP", "d_l_GDP", "d_h_va_a", "d_l_va_a",
+         "d_h_va_i", "d_l_va_i", "d_h_go", "d_l_go",
+         "d_h_vadd", "d_l_vadd", "d_h_vship", "d_l_vship"]
+    )
+    # Unqualified aliases used in Table 10 filter/selection
+    # (d_xrd == d_gdp_xrd, d_sale == d_gdp_sale, d_va == d_gdp_va in stage3)
+    _aliases = ["d_xrd", "d_sale", "d_va", "d_va_a", "d_va_i"]
+
+    # Industry output for endogeneity checks
+    _endo = ["d_va_ind", "d_go", "d_vadd", "d_vship"]
+
+    # Financial controls (all deflators, current + L1 + L2)
+    def _ctrl_cols(pref: str, ppent: str) -> list[str]:
+        base = [f"r_{pref}_cf", f"r_{pref}_dd1", f"r_{pref}_dltt",
+                f"r_{pref}_lt", f"r_{pref}_at", ppent]
+        return base + [f"l_{c}" for c in base] + [f"l2_{c}" for c in base]
+
+    _controls = (
+        ["emp"] +
+        _ctrl_cols("gdp", "r_inv_ppent") +
+        _ctrl_cols("gdp", "r_gdp_ppent") +
+        _ctrl_cols("va",  "r_va_ppent")  +
+        _ctrl_cols("go",  "r_go_ppent")  +
+        _ctrl_cols("nber","r_nber_ppent")
+    )
+
+    needed = sorted(set(
+        _id_cols + _xrd_deps + _xrd_lags + _out_base +
+        _asym + _aliases + _endo + _controls
+    ))
+
     con = sqlite3.connect(DB_PATH)
-    df = pd.read_sql("SELECT * FROM processed_alldata_stage3", con)
+    # Only fetch columns that actually exist in the table
+    existing = {r[1] for r in con.execute("PRAGMA table_info(processed_alldata_stage3)").fetchall()}
+    select_cols = [c for c in needed if c in existing]
+    sql = f"SELECT {', '.join(select_cols)} FROM processed_alldata_stage3"
+    df = pd.read_sql(sql, con, dtype="float32")
     con.close()
+
+    # Restore string types for identifiers
+    df["key"]  = df["key"].astype(str)
+    df["sic"]  = pd.to_numeric(df["sic"],  errors="coerce")
     df["year"] = pd.to_numeric(df["year"], errors="coerce").astype("Int64")
-    df["sic"] = pd.to_numeric(df["sic"], errors="coerce")
     df = df.sort_values(["key", "year"]).reset_index(drop=True)
     return df
 

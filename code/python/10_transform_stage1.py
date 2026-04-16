@@ -10,7 +10,7 @@ import pandas as pd
 
 ROOT = Path(__file__).resolve().parents[2]
 DB_PATH = ROOT / "data" / "cyclicality.db"
-REPORT_PATH = ROOT / "data" / "TRANSFORMATION_STAGE1_REPORT.md"
+REPORT_PATH = ROOT / "docs" / "reports" / "TRANSFORMATION_STAGE1_REPORT.md"
 OUT_TABLE = "processed_alldata_stage1"
 
 

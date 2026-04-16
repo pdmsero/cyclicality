@@ -8,7 +8,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[2]
 ALLDATA_DO = ROOT / "code" / "stata" / "AllData.do"
 DB_PATH = ROOT / "data" / "cyclicality.db"
-OUT_PATH = ROOT / "data" / "TRANSFORMATION_COVERAGE_AUDIT.md"
+OUT_PATH = ROOT / "docs" / "reports" / "TRANSFORMATION_COVERAGE_AUDIT.md"
 
 GEN_RE = re.compile(r"^\s*(gen|egen)\s+([A-Za-z_][A-Za-z0-9_]*)\s*=", re.IGNORECASE)
 DROP_RE = re.compile(r"^\s*drop\s+if\s+(.+)$", re.IGNORECASE)

@@ -8,11 +8,14 @@ import warnings
 import numpy as np
 import pandas as pd
 
-from build_alldata_transform_stage3 import transform_stage3
+import importlib.util as _ilu
+_spec = _ilu.spec_from_file_location("transform_stage3", Path(__file__).parent / "12_transform_stage3.py")
+_mod  = _ilu.module_from_spec(_spec); _spec.loader.exec_module(_mod)
+transform_stage3 = _mod.transform_stage3
 
 ROOT = Path(__file__).resolve().parents[2]
 DB_PATH = ROOT / "data" / "cyclicality.db"
-REPORT_PATH = ROOT / "data" / "TRANSFORMATION_STAGE3_PARITY.md"
+REPORT_PATH = ROOT / "docs" / "reports" / "TRANSFORMATION_STAGE3_PARITY.md"
 TOL = 1e-9
 
 

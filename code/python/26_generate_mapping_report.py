@@ -6,7 +6,7 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[2]
 DB = ROOT / "data" / "cyclicality.db"
-OUT = ROOT / "data" / "MAPPING_INTEGRITY_REPORT.md"
+OUT = ROOT / "docs" / "reports" / "MAPPING_INTEGRITY_REPORT.md"
 
 
 def q1(conn: sqlite3.Connection, sql: str):

@@ -1,0 +1,16 @@
+# Python dependencies for the cyclicality replication pipeline.
+# Versions reflect the environment used during development (April 2026).
+# Install with: pip install -r requirements.txt
+
+beautifulsoup4==4.14.3      # HTML parsing (BLS wage scraping)
+fredapi==0.5.2              # FRED API client (bond yields refresh)
+linearmodels==7.0           # Panel IV / GMM estimators (stage 4 TFP)
+matplotlib==3.10.8          # Figures
+numbers-parser              # Apple Numbers → CSV (legacy IO table conversion)
+numpy==2.2.6
+pandas==2.3.0               # Core data manipulation
+pyreadstat==1.3.3           # Read/write Stata .dta files
+python-dotenv==1.2.2        # .env file loading (API keys)
+requests==2.33.1            # HTTP (BEA, BLS API calls)
+scipy==1.15.3               # Statistical functions
+statsmodels==0.14.6         # OLS, fixed effects, clustered SEs

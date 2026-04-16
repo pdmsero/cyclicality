@@ -8,7 +8,7 @@ import pandas as pd
 
 ROOT = Path(__file__).resolve().parents[2]
 DB_PATH = ROOT / "data" / "cyclicality.db"
-OUT_PATH = ROOT / "data" / "PARITY_CHECKPOINTS.md"
+OUT_PATH = ROOT / "docs" / "reports" / "PARITY_CHECKPOINTS.md"
 
 
 def build_code_from_naics3(naics_series: pd.Series) -> pd.Series:

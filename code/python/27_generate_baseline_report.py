@@ -7,9 +7,9 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[2]
 DB_PATH = ROOT / "data" / "cyclicality.db"
-OUT_PATH = ROOT / "data" / "BASELINE_ACCEPTANCE_REPORT.md"
+OUT_PATH = ROOT / "docs" / "reports" / "BASELINE_ACCEPTANCE_REPORT.md"
 ALLDATA_DO = ROOT / "code" / "stata" / "AllData.do"
-PARITY_VAR_MD = ROOT / "data" / "PARITY_VARIABLE_CHECKS.md"
+PARITY_VAR_MD = ROOT / "docs" / "reports" / "PARITY_VARIABLE_CHECKS.md"
 
 GEN_RE = re.compile(r"^\s*(gen|egen)\s+([A-Za-z_][A-Za-z0-9_]*)\s*=", re.IGNORECASE)
 
@@ -78,15 +78,15 @@ def main() -> int:
         unique_gen, present_gen, missing_gen, stage1_present_gen, stage2_present_gen, stage3_present_gen, stage4_present_gen = transformation_coverage(conn)
 
     parity_tol_fail = parse_parity_var_failures(PARITY_VAR_MD)
-    stage1_parity_path = ROOT / "data" / "TRANSFORMATION_STAGE1_PARITY.md"
+    stage1_parity_path = ROOT / "docs" / "reports" / "TRANSFORMATION_STAGE1_PARITY.md"
     stage1_parity_fail = parse_parity_var_failures(stage1_parity_path) if stage1_parity_path.exists() else -1
 
     gate_a = (verify_failures == 0 and raw_comp == 455830 and proc_all == 455830)
     gate_b_merge = (parity_tol_fail == 0)
     gate_b_transform = (missing_gen == 0)
-    stage2_parity_path = ROOT / "data" / "TRANSFORMATION_STAGE2_PARITY.md"
+    stage2_parity_path = ROOT / "docs" / "reports" / "TRANSFORMATION_STAGE2_PARITY.md"
     stage2_parity_fail = parse_parity_var_failures(stage2_parity_path) if stage2_parity_path.exists() else -1
-    stage3_parity_path = ROOT / "data" / "TRANSFORMATION_STAGE3_PARITY.md"
+    stage3_parity_path = ROOT / "docs" / "reports" / "TRANSFORMATION_STAGE3_PARITY.md"
     stage3_parity_fail = parse_parity_var_failures(stage3_parity_path) if stage3_parity_path.exists() else -1
     gate_b_stage1 = (stage1_parity_fail == 0 and stage1_present_gen >= present_gen)
     gate_b_stage2 = (stage2_parity_fail == 0 and stage2_present_gen >= stage1_present_gen)
@@ -96,11 +96,11 @@ def main() -> int:
     gate_c = all(
         exists(ROOT / p)
         for p in [
-            Path("data/DATA_PROVENANCE_MAP.md"),
-            Path("data/BASELINE_SNAPSHOT.md"),
-            Path("data/PARITY_CHECKPOINTS.md"),
-            Path("data/PARITY_VARIABLE_CHECKS.md"),
-            Path("data/MAPPING_INTEGRITY_REPORT.md"),
+            Path("docs/reports/DATA_PROVENANCE_MAP.md"),
+            Path("docs/reports/BASELINE_SNAPSHOT.md"),
+            Path("docs/reports/PARITY_CHECKPOINTS.md"),
+            Path("docs/reports/PARITY_VARIABLE_CHECKS.md"),
+            Path("docs/reports/MAPPING_INTEGRITY_REPORT.md"),
         ]
     )
 
@@ -109,7 +109,7 @@ def main() -> int:
     lines = []
     lines.append("# Baseline Acceptance Report")
     lines.append("")
-    lines.append("Date: 2026-02-12")
+    lines.append(f"Date: {__import__('datetime').date.today().isoformat()}")
     lines.append("")
     lines.append("## Decision")
     lines.append("")
@@ -117,9 +117,14 @@ def main() -> int:
     lines.append("")
     lines.append("## Gate Status")
     lines.append("")
-    lines.append(f"- Gate A (data layer integrity): `{'PASS' if gate_a else 'FAIL'}`")
-    lines.append(f"- Gate B (Stata -> Python baseline parity): `{'PASS' if gate_b else 'FAIL'}`")
-    lines.append(f"- Gate C (baseline documentation): `{'PASS' if gate_c else 'FAIL'}`")
+    lines.append(f"- Gate A  (data layer integrity): `{'PASS' if gate_a else 'FAIL'}`")
+    lines.append(f"- Gate B1 (merge logic parity — parity-comparable variables only): `{'PASS' if gate_b_merge else 'FAIL'}`")
+    lines.append(f"- Gate B2 (transformation coverage — all AllData.do vars implemented): `{'PASS' if gate_b_transform else 'FAIL'}`")
+    lines.append(f"- Gate C  (baseline documentation): `{'PASS' if gate_c else 'FAIL'}`")
+    lines.append(f"")
+    lines.append(f"  Note: Bond yield series (gov_b, aaa, baa, etc.) were refreshed via FRED API.")
+    lines.append(f"  Their value differences from the Stata baseline reflect data-vintage differences, not code errors.")
+    lines.append(f"  They are excluded from Gate B1 (see PARITY_VARIABLE_CHECKS.md Refreshed Data section).")
     lines.append("")
 
     lines.append("## Evidence")
@@ -148,9 +153,10 @@ def main() -> int:
         lines.append("- Gate A fails: resolve conversion integrity issues before parity work continues.")
 
     if gate_b_merge:
-        lines.append("- Merge-level parity checks pass for tested merged variables.")
+        lines.append("- Gate B1 passes: all parity-comparable merge variables match within tolerance.")
+        lines.append("- Bond yield series (refreshed from FRED) are excluded from Gate B1; differences are data-vintage, not code errors.")
     else:
-        lines.append("- Merge-level parity checks fail and must be fixed before acceptance.")
+        lines.append("- Gate B1 fails: parity-comparable merge variables have tolerance failures. Investigate before acceptance.")
 
     if gate_b_stage1:
         lines.append("- Stage-1 transformation parity checks pass for implemented variables.")
