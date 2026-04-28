@@ -1,0 +1,6 @@
+outs:
+- md5: 04091626d270c03196ee17386f2e1114.dir
+  size: 696874751
+  nfiles: 39
+  hash: md5
+  path: stata_baseline

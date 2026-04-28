@@ -1,0 +1,6 @@
+outs:
+- md5: f01ef32fa28ca1aa7626aeeea754769d.dir
+  size: 138519523
+  nfiles: 2
+  hash: md5
+  path: compustat

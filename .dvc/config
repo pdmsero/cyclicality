@@ -1,1 +1,6 @@
-
+[core]
+    remote = r2
+['remote "r2"']
+    url = s3://papers-data/cyclicality
+    endpointurl = https://0646657028903785d71819eaa22e290a.r2.cloudflarestorage.com
+    profile = r2

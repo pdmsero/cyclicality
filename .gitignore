@@ -1,2 +1,6 @@
-/data
 .env
+
+# Pipeline-regenerable SQLite (do not store remote; rebuild from DVC-tracked inputs)
+data/cyclicality.db
+data/cyclicality.db-shm
+data/cyclicality.db-wal

@@ -1,0 +1,6 @@
+outs:
+- md5: e7511dff2da6be08dc6ce8b5c21d54d1.dir
+  size: 92478
+  nfiles: 2
+  hash: md5
+  path: crosswalks

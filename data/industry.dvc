@@ -1,0 +1,6 @@
+outs:
+- md5: 188f4c526fbc59d7259bde47f03e6cda.dir
+  size: 114332294
+  nfiles: 1075
+  hash: md5
+  path: industry
