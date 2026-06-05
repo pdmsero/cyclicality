@@ -1,78 +1,46 @@
-\documentclass[12pt]{article}%
-\usepackage{amssymb}
-\usepackage{amsfonts}
-\usepackage{amsmath}
-\usepackage[nohead]{geometry}
-\usepackage[singlespacing]{setspace}
-\usepackage[bottom]{footmisc}
-\usepackage{indentfirst}
-\usepackage{endnotes}
-\usepackage{graphicx}%
+%% Migrated from vanilla article to shared house.cls in 2026-05-31 polish pass.
+%% Original preamble preserved in archive/ if needed.
+
+\documentclass{_latex/house}
+
+%% Paper-specific packages not in shared preamble.
 \usepackage{rotating}
-\usepackage{verbatim}
-\usepackage{hyperref}
 \usepackage{dcolumn}
 \usepackage{wrapfig}
-\usepackage[comma,authoryear]{natbib}
+\usepackage{endnotes}
 \setcounter{MaxMatrixCols}{30}
-\newtheorem{theorem}{Theorem}
-\newtheorem{acknowledgement}{Acknowledgement}
-\newtheorem{algorithm}[theorem]{Algorithm}
-\newtheorem{axiom}[theorem]{Axiom}
-\newtheorem{case}[theorem]{Case}
-\newtheorem{claim}[theorem]{Claim}
-\newtheorem{conclusion}[theorem]{Conclusion}
-\newtheorem{condition}[theorem]{Condition}
-\newtheorem{conjecture}[theorem]{Conjecture}
-\newtheorem{corollary}[theorem]{Corollary}
-\newtheorem{criterion}[theorem]{Criterion}
-\newtheorem{definition}[theorem]{Definition}
-\newtheorem{example}[theorem]{Example}
-\newtheorem{exercise}[theorem]{Exercise}
-\newtheorem{lemma}[theorem]{Lemma}
-\newtheorem{notation}[theorem]{Notation}
-\newtheorem{problem}[theorem]{Problem}
-\newtheorem{proposition}{Proposition}
-\newtheorem{remark}[theorem]{Remark}
-\newtheorem{solution}[theorem]{Solution}
-\newtheorem{summary}[theorem]{Summary}
-\newenvironment{proof}[1][Proof]{\noindent\textbf{#1.} }{\ \rule{0.5em}{0.5em}}
+
+%% Local macros.
 \newcommand{\pd}[2]{\frac{\partial#1}{\partial#2}}
-\makeatletter
-\def\@biblabel#1{\hspace*{-\labelsep}}
-\makeatother
 \makeatletter
 \def\blfootnote{\xdef\@thefnmark{}\@footnotetext}
 \makeatother
-\geometry{left=1in,right=1in,top=1.00in,bottom=1.0in}
+
 \begin{document}
 
-\title{R\&D Smoothing: Evidence and some theory}
-\author{Pedro Ser\^{o}dio\thanks{Address: Department of Economics, University of Essex, CO4 3SQ Colchester, UK, e-mail: \textit{pdsero@essex.ac.uk}. The author is grateful to Christian Ghiglino, Stefan Niemann, Katharine Rockett, Jo\~{a}o Santos Silva, George Symeonidis, Bruno Rocha, Gadi Barlevy and Paul Levine for advice and suggestions, and seminar participants at the University of Essex and University of Troms\o\:for helpful comments.}\medskip\\{\normalsize Department of Economics, University of Warwick}}
-\maketitle
+\begin{frontmatter}
 
-\sloppy%avoids the breakage of words at the end of lines, by adjusting spaces between words inside the lines
+\title{R\&D Smoothing: Evidence and Some Theory}
 
-\onehalfspacing
+\author[essex]{Pedro Ser\^odio\corref{cor1}}
+\address[essex]{Department of Economics, University of Warwick}
+\cortext[cor1]{Address: Department of Economics, University of Essex, CO4 3SQ Colchester, UK; \href{mailto:pdsero@essex.ac.uk}{pdsero@essex.ac.uk}. The author is grateful to Christian Ghiglino, Stefan Niemann, Katharine Rockett, Jo\~ao Santos Silva, George Symeonidis, Bruno Rocha, Gadi Barlevy and Paul Levine for advice and suggestions, and to seminar participants at the University of Essex and the University of Troms\o\ for helpful comments. Funded by Funda\c{c}\~ao para a Ci\^encia e a Tecnologia (FCT, Portugal).}
 
 \begin{abstract}
-We revisit the debate over the cyclical pattern of R\&D and its implications for Schumpeter's opportunity cost hypothesis using a production asset pricing model to explain firms' research spending decisions and comparing simulation results with empirical estimates. These results overwhelmingly suggest that there is a significant degree of smoothing in research spending, both in theory and in practice, which implies both pro-cyclical behaviour in its growth rate as well as counter-cyclical behaviour in the share of R\&D on output. Evidence in favour of modified version of the opportunity cost hypothesis is also uncovered, with firms investing counter-cyclically in research as measured by its ratio with respect to the sum of R\&D and capital expenditures. Alternative theories for the observed pro-cyclical behaviour of research spending are also addressed, with those based on internal and/or external financial constraints receiving very little empirical supports.
+We revisit the debate over the cyclical pattern of R\&D and its implications for Schumpeter's opportunity cost hypothesis using a production asset pricing model to explain firms' research spending decisions and comparing simulation results with empirical estimates. These results overwhelmingly suggest that there is a significant degree of smoothing in research spending, both in theory and in practice, which implies both pro-cyclical behaviour in its growth rate as well as counter-cyclical behaviour in the share of R\&D on output. Evidence in favour of modified version of the opportunity cost hypothesis is also uncovered, with firms investing counter-cyclically in research as measured by its ratio with respect to the sum of R\&D and capital expenditures. Alternative theories for the observed pro-cyclical behaviour of research spending are also addressed, with those based on internal and/or external financial constraints receiving very little empirical support.
 \end{abstract}
 
-\strut
+\begin{keyword}
+Research \& Development \sep Business Cycles
+\JEL E22 \sep E32 \sep O16 \sep O30 \sep O32
+\end{keyword}
 
-\textbf{Keywords:} Research \& Development, Business Cycles.
+\end{frontmatter}
 
-\strut
+%% FCT funding logo, via \fctlogo from the shared preamble.
+\fctlogo[5in]
 
-\textbf{JEL Classification Numbers:}  E22, E32, O16, O30, O32.
-
-\begin{figure}[h!b]
- \centerline{ \includegraphics[width=5in]{fct.jpg}}
-\end{figure}
-
-\pagebreak%breaks to the next page
-\singlespacing %makes space between lines to be double, use singlespacing for space 1
+\pagebreak
 
 
 \section{Introduction} \label{introduction}
@@ -1028,7 +996,7 @@ A separate issue concerns the role financing plays in driving the observed pro-c
 
 
 \newpage
-\bibliographystyle{plainnat}
+\bibliographystyle{_latex/elsarticle-harv}
 \bibliography{../references}
 \newpage
 
