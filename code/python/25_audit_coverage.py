@@ -36,7 +36,7 @@ def main() -> int:
         stage1_cols = {row[1].lower() for row in conn.execute("PRAGMA table_info(processed_alldata_stage1)")} if stage1_exists else set()
         stage2_exists = conn.execute("SELECT COUNT(*) FROM sqlite_master WHERE type='table' AND name='processed_alldata_stage2'").fetchone()[0] > 0
         stage2_cols = {row[1].lower() for row in conn.execute("PRAGMA table_info(processed_alldata_stage2)")} if stage2_exists else set()
-        stage3_exists = conn.execute("SELECT COUNT(*) FROM sqlite_master WHERE type='table' AND name='processed_alldata_stage3'").fetchone()[0] > 0
+        stage3_exists = conn.execute("SELECT COUNT(*) FROM sqlite_master WHERE type IN ('table', 'view') AND name='processed_alldata_stage3'").fetchone()[0] > 0
         stage3_cols = {row[1].lower() for row in conn.execute("PRAGMA table_info(processed_alldata_stage3)")} if stage3_exists else set()
 
     unique_gen_vars: list[str] = []

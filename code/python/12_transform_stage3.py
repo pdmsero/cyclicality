@@ -12,6 +12,13 @@ ROOT = Path(__file__).resolve().parents[2]
 DB_PATH = ROOT / "data" / "cyclicality.db"
 REPORT_PATH = ROOT / "docs" / "reports" / "TRANSFORMATION_STAGE3_REPORT.md"
 OUT_TABLE = "processed_alldata_stage3"
+DELTA_TABLE = "processed_alldata_stage3_delta"
+DELTA_KEY_COLS = ["key", "year", "gvkey"]
+DELTA_GENERATED_COLS = [
+    "t", "firmid", "count", "survivor", "has95", "has_gaps", "exit",
+    "r_sale", "r_xrd", "q_ret", "l_q", "d_q", "z1", "z2",
+    "average_z1", "average_z2",
+]
 
 
 def safe_div(num: pd.Series, den: pd.Series) -> pd.Series:
@@ -140,11 +147,34 @@ def main() -> int:
 
     out_df, generated, skipped, assumptions = transform_stage3(stage2_df)
 
+    delta_cols_present = [c for c in DELTA_KEY_COLS + DELTA_GENERATED_COLS if c in out_df.columns]
+    delta_df = out_df[delta_cols_present].copy()
+
     with sqlite3.connect(DB_PATH) as conn:
-        sql_chunk = safe_to_sql_chunksize(conn, len(out_df.columns))
-        conn.execute(f"DROP TABLE IF EXISTS {OUT_TABLE}")
-        out_df = out_df.copy()
-        out_df.to_sql(OUT_TABLE, conn, if_exists="replace", index=False, method="multi", chunksize=sql_chunk)
+        existing = conn.execute(
+            "SELECT type FROM sqlite_master WHERE name = ?", (OUT_TABLE,)
+        ).fetchone()
+        if existing is not None:
+            if existing[0] == "view":
+                conn.execute(f"DROP VIEW {OUT_TABLE}")
+            else:
+                conn.execute(f"DROP TABLE {OUT_TABLE}")
+        conn.execute(f"DROP TABLE IF EXISTS {DELTA_TABLE}")
+        sql_chunk = safe_to_sql_chunksize(conn, len(delta_df.columns))
+        delta_df.to_sql(DELTA_TABLE, conn, if_exists="replace", index=False, method="multi", chunksize=sql_chunk)
+        conn.execute(
+            f"CREATE UNIQUE INDEX IF NOT EXISTS idx_{DELTA_TABLE}_key_year "
+            f"ON {DELTA_TABLE}(key, year)"
+        )
+        delta_select = ", ".join(
+            f"d3.{c}" for c in DELTA_GENERATED_COLS if c in delta_cols_present
+        )
+        conn.execute(
+            f"CREATE VIEW {OUT_TABLE} AS "
+            f"SELECT s2.*, {delta_select} "
+            f"FROM processed_alldata_stage2 s2 "
+            f"LEFT JOIN {DELTA_TABLE} d3 ON s2.key = d3.key AND s2.year = d3.year"
+        )
         out_rows = int(conn.execute(f"SELECT COUNT(*) FROM {OUT_TABLE}").fetchone()[0])
 
     lines = []
