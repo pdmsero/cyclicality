@@ -1,6 +1,6 @@
 outs:
-- md5: e215bae4dc811cc452a567c543cdafa6.dir
-  size: 44467488
-  nfiles: 216
+- md5: 877980334919cdef94effa558b4ce93a.dir
+  size: 44447000
+  nfiles: 214
   hash: md5
   path: instruments
