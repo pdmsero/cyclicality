@@ -14,7 +14,9 @@ literature/sources/
 literature/wiki/
 
 # LaTeX build
-paper/build/
+!paper/build/
+paper/build/*
+!paper/build/main.pdf
 paper/main.pdf
 paper/*.aux
 paper/*.bbl
