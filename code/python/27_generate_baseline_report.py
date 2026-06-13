@@ -16,7 +16,16 @@ GEN_RE = re.compile(r"^\s*(gen|egen)\s+([A-Za-z_][A-Za-z0-9_]*)\s*=", re.IGNOREC
 
 def parse_parity_var_failures(path: Path) -> int:
     text = path.read_text(encoding="utf-8", errors="ignore")
-    # numeric parity table lines end with |> tol count |
+    # Preferred: the authoritative summary line emitted by the stage parity
+    # reports, e.g. "- Total numeric tolerance failures (`>1e-09`): `250434`".
+    # (The per-variable tables in those reports have only 4 columns / 5 pipes,
+    # so the table-row parse below silently misses them — the original bug that
+    # let 250k failures report as 0.)
+    m = re.search(r"Total numeric tolerance failures[^\n]*:\s*`?([\d,]+)`?", text)
+    if m:
+        return int(m.group(1).replace(",", ""))
+    # Fallback: merge report (PARITY_VARIABLE_CHECKS.md) — 6 columns / 7 pipes,
+    # failure count in the final ">tol count" column.
     fail_counts = []
     for line in text.splitlines():
         if line.startswith("| `") and line.count("|") >= 7:

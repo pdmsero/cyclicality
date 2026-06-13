@@ -45,20 +45,20 @@ Research \& Development \sep Business Cycles
 
 \section{Introduction} \label{introduction}
 
-In \textit{Capitalism, Socialism and Democracy}, \cite{schumpeter1939business} outlined an important argument for a potentially beneficial consequence of periods of decreased economic activity: the idea that firms respond to reduced demand for their products by investing in new processes, products and services that will accrue higher profits during the recovery phase. In other words, recessions have a \textit{cleansing} effect, in that they not only force inefficient concerns out of businesses, but they provide the necessary incentives for outdated products, processes or services to be phased out and replaced by more efficient ones, thereby contributing towards the process of technological progress.
+In \textit{Capitalism, Socialism and Democracy}, \cite{schumpeter1939business} outlined an important argument for a potentially beneficial consequence of periods of decreased economic activity: the idea that firms respond to reduced demand for their products by investing in new processes, products and services that will accrue higher profits during the recovery phase. In other words, recessions have a \textit{cleansing} effect, in that they not only force inefficient concerns out of businesses, but they provide the necessary incentives for outdated products, processes or services to be phased out and replaced by more efficient ones, thereby contributing towards the process of technological progress. This intuition was later formalised in the theory of business cycles with endogenous growth \citep{kingrebelo,lucas2002lectures} and sharpened by models of the optimal timing of innovation over the cycle \citep{NBERw10741}, in which the opportunity cost of diverting resources from production to innovation is lowest in downturns; the same opportunity-cost logic extends to cyclical investment in human capital \citep{Sakellaris2000221}.
 
 Despite the intuitive appeal of this idea, attempts to demonstrate this effect empirically have suggested instead that spending in research and development largely shadows fluctuations in spending or output, which directly contradicts the claim. A cursory look at US aggregate data for the period between 1960 and 2008 supports this view, with in figure (\ref{figure1}) showing a linear fit of the growth rates of GDP and R\&D spending as well as the joint time paths for these variables.
 \begin{figure}[hb]
  \caption{Cyclicality of R\&D at the aggregate level}
   \label{figure1}
- \centerline{ \includegraphics[width=7in]{gdprnd.jpeg}}
+ \centerline{ \includegraphics[width=\textwidth]{gdprnd.jpeg}}
 \end{figure}
 
 While the correlation between the two is not perfect, a statistically significant coefficient of $0.37$ and an estimated $\beta$ in a linear regression of GDP growth to R\&D growth of $0.71$ indicate, at the very least, that if there is a counter-cyclical relationship at the firm level, it does not extend to aggregate variables\footnote{The same exercise using a HP filter on the data instead of growth rates yields identical results.}. Asking the same question of US data at the industry level paints a much murkier picture, with R\&D in some of them displaying a counter-cyclical profile (such as Industrial Chemicals, with a correlation of $-0.26$ and $\beta$ of $-0.285$) and others a strongly pro-cyclical one (like Autos \& Others, with a correlation of $0.468$ and $\beta$ of $0.288$). Figure (\ref{figure2}) shows the $\beta$ coefficients for a linear fit of R\&D growth using the growth rate in value of shipments as the regressor for all 20 industries in \cite{RePEc:tpr:restat:v:93:y:2011:i:2:p:542-553}. The value is positive, indicating pro-cyclical research spending, in 14 of these.
 \begin{figure}[h!t]
  \caption{Growth rate of industry R\&D and Value of Shipments}
   \label{figure2}
- \centerline{ \includegraphics[width=7in]{industry.jpeg}}
+ \centerline{ \includegraphics[width=\textwidth]{industry.jpeg}}
 \end{figure}
 
 The lack of a straightforward answer warrants closer inspection and a systematised approach to try and provide a clearer picture of the behaviour of research expenditure over the business cycle. In this paper, we propose just such an exercise by looking at the relationship between research spending and the cycle at the industry level using data lifted from the NSF and the NBER manufacturing productivity database, and at the firm level using Compustat data and data from the NIPA-BEA tables.
@@ -104,8 +104,9 @@ s_{i,t}=\beta_{0}+\beta_{1} \Delta \ln y_{i,t}+\sum_{k=1}^{K} \pi_{k} s_{i,t-k}+
 \end{align}
 
 The third model is a simple variation of equation \ref{eq:eq2}, in which the dependent variable is the aforementioned ratio between research and capital expenditures, $z|i_{i,t}$. Including this third measure is justified on the grounds that the preceding two models are closely linked, in the sense that if research expenditures don't grow at the same rate as output, then its ratio falls mechanically. In order to test whether the same can be said of other expenditure categories and, specifically, whether the \textquoteleft opportunity cost\textquoteright\:hypothesis is validated in some way, it is natural to test whether this measure of R\&D intensity behaves counter-cyclically at the industry level.
-\begin{align} \label{eq:eq3}
-z|i_{i,t}=\beta_{0}+\beta_{1} \Delta \ln y_{i,t}+\sum_{k=1}^{K} \pi_{k} z|i_{i,t-k}+\boldsymbol{\lambda X_{i,t}}+\boldsymbol{\gamma \tau_{t}}+\delta_{i}+\epsilon_{i,t}
+\begin{align}
+z|i_{i,t}={}&\beta_{0}+\beta_{1} \Delta \ln y_{i,t}+\sum_{k=1}^{K} \pi_{k} z|i_{i,t-k} \nonumber \\
+&+\boldsymbol{\lambda X_{i,t}}+\boldsymbol{\gamma \tau_{t}}+\delta_{i}+\epsilon_{i,t} \label{eq:eq3}
 \end{align}
 
 A second dataset merges data from the NBER Manufacturing Productivity database on value added and value of shipments for manufacturing industries using their 4-digit SIC code, which is matched with the same code on the Compustat database. This allows us to combine detailed balance sheet information on each firm with information on the industry's level of output that can then be used as demand instruments. In contrast with \cite{RePEc:aea:aecrev:v:97:y:2007:i:4:p:1131-1164}, rather than estimating the relationship between fluctuations in R\&D spending and the rate of change in industry output ($y_{i,t}$), we estimate the following version of equation ~\ref{eq:eq1}:
@@ -171,9 +172,12 @@ q_{i,j,m}=\lambda q_{i,j,m-1}=\lambda^{m} q_{i,j,0} \label{equation4}
 
 Technological innovations arrive stochastically, with firms devoting resources to research and development that determine the probability of successfully securing an improvement to the production process. The probability of a move from step $m$ to step $m+1$ in the technology ladder is given by $\mathcal{P}(Q_{i,j,t+1}=q_{i,j,m+1}|Q_{i,j,t}=q_{i,j,m})$, which allows us to write the following law of motion for the firm's level of technology:
 \begin{equation}
+\resizebox{\textwidth}{!}{$\displaystyle
 Q_{i,j,t+1}= \left\{ \begin{array}{ll}
          \lambda Q_{i,j,t}, & \text{with probability} \quad \mathcal{P}(Q_{i,j,t+1}=q_{i,j,m+1}|Q_{i,j,t}=q_{i,j,m});\\
-        Q_{i,j,t}, & \text{with probability} \quad \left(1-\mathcal{P}(Q_{i,j,t+1}=q_{i,j,m+1}|Q_{i,j,t}=q_{i,j,m}) \right).\end{array} \right. \label{equation5}
+        Q_{i,j,t}, & \text{with probability} \quad \left(1-\mathcal{P}(Q_{i,j,t+1}=q_{i,j,m+1}|Q_{i,j,t}=q_{i,j,m}) \right).\end{array} \right.
+$}
+\label{equation5}
 \end{equation}
 
 The probability $\mathcal{P}(Q_{i,t+1}=q_{i,j+1}|Q_{i,t}=q_{i,j})$ is assumed to be a function of the technology-adjusted level of research expenditure: \cite{RePEc:nbr:nberwo:16411} describe this as the \textquotedblleft fishing from the same pond\textquotedblright\:effect, whereby new discoveries become harder as technology progresses, forcing companies to spend increasing amounts of real resources to ensure nonzero arrival probabilities\footnote{The motivation for using labour as the only input in the probability of a successful innovation in much of the literature stems from the outsized contribution of labour costs to firms' research expenditure. This assumption, however, elides the fact that a large fraction of the labour used is highly specialised and therefore allocating it to productive efforts is unrealistic, as well as the significant contribution of materials and other costs to overall research spending, neither of which are likely to be inputs in the productive process. Subsequent discussion on this assumption in the section discussing the calibration of the model will elaborate on this point.}.
@@ -242,7 +246,8 @@ As stated, the solution to this system of equations cannot be analysed using sta
 \begin{align*}
 K^{b}_{i,s+1}=&Q_{i,t+1}\tilde{K}^{b}_{i,s+1}=\mathcal{P}\left(\frac{Z_{i,s}}{Q_{i,s}} \right) q_{i,j+1}\tilde{K}^{b}_{i,s+1}+\left(1-\mathcal{P}\left(\frac{Z_{i,s}}{Q_{i,s}} \right)\right) q_{i,j}\tilde{K}^{b}_{i,s+1}=
 \\
-=& \left(q_{i,j}+(q_{i,j+1}-q_{i,j})\mathcal{P}\left(\frac{Z_{i,s}}{Q_{i,s}} \right) \right)\tilde{K}^{b}_{i,s+1}=\left(q_{i,j}+(q_{i,j+1}-q_{i,j})\mathcal{P}\left(\frac{Z_{i,s}}{Q_{i,s}} \right) \right)\tilde{K}^{e}_{i,s}
+=& \left(q_{i,j}+(q_{i,j+1}-q_{i,j})\mathcal{P}\left(\frac{Z_{i,s}}{Q_{i,s}} \right) \right)\tilde{K}^{b}_{i,s+1} \\
+&=\left(q_{i,j}+(q_{i,j+1}-q_{i,j})\mathcal{P}\left(\frac{Z_{i,s}}{Q_{i,s}} \right) \right)\tilde{K}^{e}_{i,s}
 \end{align*}
 
 Using the timing convention described above, where the $b$ superscript indicates a beginning of period variable and the superscript $e$ an end of period variable, we can recast the equilibrium conditions of the model in terms of stationary variables, where any variable $X_{i,t}$ can be decomposed into the variables $\tilde{X}_{i,t}$ and $Q_{i,t}$. Hence, these are:
@@ -285,7 +290,7 @@ It is standard in the literature \cite{RePEc:aea:aecrev:v:97:y:2007:i:4:p:1131-1
 \begin{figure}[h!t]
   \caption{R\&D Expenditure by Type}
   \centering  
-  \includegraphics[width=1 \textwidth]{typeofrnd.eps} \\
+  \includegraphics[width=\textwidth]{typeofrnd.pdf} \\
 \footnotesize
 \textit{Overall expenditure on wages accounts for roughly half of all research spending.
 \\ Source: \href{http://www.nsf.gov/statistics/iris/search_hist.cfm?indx=3}{NSF, IRIS database}, table h-27.}
@@ -368,6 +373,7 @@ would by construction be given by the vector $\boldsymbol{\beta}=[0\quad 1]$ wit
 \begin{table}[!htbp] \centering 
   \caption{Fixed effects coefficients} 
   \label{} 
+\resizebox{\textwidth}{!}{%
 \begin{tabular}{@{\extracolsep{5pt}}lD{.}{.}{-3} D{.}{.}{-3} D{.}{.}{-3} D{.}{.}{-3} } 
 \\[-1.8ex]\hline 
 \hline \\[-1.8ex] 
@@ -390,6 +396,7 @@ would by construction be given by the vector $\boldsymbol{\beta}=[0\quad 1]$ wit
 \hline \\[-1.8ex] 
 \textit{Note:}  & \multicolumn{4}{r}{$^{*}$p$<$0.1; $^{**}$p$<$0.05; $^{***}$p$<$0.01} \\ 
 \end{tabular} 
+}
 \label{tab:table4}
 \end{table} 
 
@@ -655,6 +662,7 @@ Once more, the response of the ratio of research spending to total investment is
 {
 \def\sym#1{\ifmmode^{#1}\else\(^{#1}\)\fi}
 \scriptsize
+\resizebox{\textwidth}{!}{%
 \begin{tabular}{{l} {l} {l} {l} | {l} {l} {l} | {l} {l} {l} }
  \multicolumn{10}{c}{Functional form: $\ln{VA_{i,j,t}}=\ln{TFP_{i,j,t}}+\alpha\ln{K_{i,j,t}}+\beta\ln{L_{i,j,t}}$} \\ 
 \hline\hline
@@ -692,7 +700,8 @@ ${\alpha+\beta}^{\ddag}$ & 1.042\sym{***} & 1.021\sym{*} & 1.040\sym{***} & 1.11
 \multicolumn{10}{l}{\footnotesize \ddag \: F-test for the null hypothesis that $\alpha+\beta=1$} \\
 \end{tabular}
 }
-\label{tab:table10}
+}
+\label{tab:prodfn}
 \end{center}
 \end{table}
 
@@ -706,6 +715,7 @@ In section (\ref{simulation}) we presented the results of a simulated production
 \begin{center}
 {
 \def\sym#1{\ifmmode^{#1}\else\(^{#1}\)\fi}
+\resizebox{\textwidth}{!}{%
 \begin{tabular}{ {l}  {c}  {c}  |  {c}  {c}  {c}  }
             \multicolumn{6}{c}{Endogenous variable, $\Delta\ln{z_{i,j,t}}$, R\&D growth rate} \\
 \hline\hline
@@ -734,6 +744,7 @@ Year FE & Y & Y & Y & Y & Y \\
 \multicolumn{6}{l}{\footnotesize $\dag$ \(p<0.1\), \sym{*} \(p<0.05\), \sym{**} \(p<0.01\), \sym{***} \(p<0.001\)}\\
 \end{tabular}
 }
+}
 \end{center}
 \label{tab:table11}
 \end{table}
@@ -744,6 +755,7 @@ Using data for the period between 1977 and 2011 from the BEA's Annual Industry A
 \begin{center}
 {
 \def\sym#1{\ifmmode^{#1}\else\(^{#1}\)\fi}
+\resizebox{\textwidth}{!}{%
 \begin{tabular}{ {l}  {c}  {c}  |  {c}  {c}  {c}  }
             \multicolumn{6}{c}{Endogenous variable, $\Delta\ln{z_{i,j,t}}$, R\&D growth rates} \\
 \hline\hline
@@ -777,6 +789,7 @@ Year FE & Y & Y & Y & Y & Y \\
 \multicolumn{6}{l}{\footnotesize $\dag$ \(p<0.1\), \sym{*} \(p<0.05\), \sym{**} \(p<0.01\), \sym{***} \(p<0.001\)}\\
 \end{tabular}
 }
+}
 \end{center}
 \label{tab:table12}
 \end{table}
@@ -789,6 +802,7 @@ On a side note, these results provide no clear guidance as to whether Schmookler
 \begin{center}
 {
 \def\sym#1{\ifmmode^{#1}\else\(^{#1}\)\fi}
+\resizebox{\textwidth}{!}{%
 \begin{tabular}{ {l}  {c} {c} | {c} {c} {c} }
             \multicolumn{6}{c}{Endogenous variable, $\Delta\ln{z_{i,j,t}}$, R\&D growth rate} \\
 \hline\hline
@@ -824,6 +838,7 @@ Year FE & Y & Y & Y & Y & Y \\
 \multicolumn{6}{l}{\footnotesize $\dag$ \(p<0.1\), \sym{*} \(p<0.05\), \sym{**} \(p<0.01\), \sym{***} \(p<0.001\)}\\
 \end{tabular}
 }
+}
 \end{center}
 \end{table}
 
@@ -834,7 +849,7 @@ The preceding discussion does not take into consideration how different degrees 
 
 Unfortunately, knowing which firms are financially constrained, and when, makes it exceedingly difficult to control for their effect on the outlays on R\&D. To do so, we construct three different indicators of financial constraints: the Kaplan-Zingales Index (\cite{Kaplan01021997}, \cite{RePEc:oup:rfinst:v:14:y:2001:i:2:p:529-54}), the Whited-Wu Index (\cite{RePEc:oup:rfinst:v:19:y:2006:i:2:p:531-559}) and an aggregate measure of tightening credit as measured by the spread between interest paid on BAA-rated corporate bonds and AAA-rated ones.  The index based measures allow for a division of the firms in the sample into four equally populated centiles which reflect different degrees of likelihood any given firm experiences difficulties in procuring external finance. These are not hard-measures, but if correlated with the unobservable probability of the existence of restrictions to the flow of credit, optimal investment and expenditure behaviour ought to reflect such constraints.
 
-Table ~\ref{tab:table13} summarises the results from previous sections by looking at a wider subgroup of the entire sample than in either preceding case. Absent any suitable instruments, these estimates closely resemble the non-instrumented estimates already discussed, and therefore frame the discussion of how financial constraints might affect research expenditure decisions.
+The analysis that follows looks at a wider subgroup of the entire sample than in either preceding case. Absent any suitable instruments, these estimates closely resemble the non-instrumented estimates already discussed, and therefore frame the discussion of how financial constraints might affect research expenditure decisions.
 
 The first measure of constraints analysed is the spread between BAA and AAA corporate bonds. Rather than look at the spread itself, and because it is very likely to be partly driven by the cycle, we generate a series of deviations that are not generated by fluctuations in output. That series is then demeaned and two dummy variables generated from that, one for positive and another for negative realisations. Interacting both with the main exogenous regressor gives us two different series: one in which spreads are higher than what would be expected, and one in which they are lower than what would be expected given the behaviour of GDP. Looking at table ~\ref{tab:table14}, if these aggregate changes to corporate spreads were to constrain firms in their financing, the coefficients on these two variables should be significantly different from each other. That proposition finds absolutely no support in the data, irrespective of whether we look at sales or value added growth, with no statistically significant differences between the two coefficients in all three models.
 \begin{table}[h]\footnotesize
@@ -889,7 +904,6 @@ Year FE & Y & Y & Y \\
 \hline\hline
 \multicolumn{4}{l}{\footnotesize \textit{p}-values in parentheses}\\
 \multicolumn{4}{l}{\footnotesize \sym{*} \(p<0.05\), \sym{**} \(p<0.01\), \sym{***} \(p<0.001\)}\\
-\label{tab:table14}
 \end{tabular}
 }
 \end{center}
@@ -934,7 +948,15 @@ Year FE & Y & Y & Y \\
 \multicolumn{4}{l}{\footnotesize \sym{*} \(p<0.05\), \sym{**} \(p<0.01\), \sym{***} \(p<0.001\)}\\
 \label{tab:table15}
 \end{tabular}
-\:
+}
+\end{center}
+\end{table}
+
+\begin{table}[h]\footnotesize
+\caption{R\&D ($z_{i,j,t}$) and Sales ($y_{i,j,t}$) WW Index}
+\begin{center}
+{
+\def\sym#1{\ifmmode^{#1}\else\(^{#1}\)\fi}
 \begin{tabular}{l*{3}{c}}
           &\multicolumn{3}{c}{Whited-Wu Index} \\
 \hline\hline
@@ -964,7 +986,7 @@ Year FE & Y & Y & Y \\
 \hline\hline
 \multicolumn{4}{l}{\footnotesize \textit{p}-values in parentheses}\\
 \multicolumn{4}{l}{\footnotesize \sym{*} \(p<0.05\), \sym{**} \(p<0.01\), \sym{***} \(p<0.001\)}\\
-\label{tab:table15}
+\label{tab:table16}
 \end{tabular}
 }
 \end{center}
@@ -1070,6 +1092,7 @@ At the firm level information, except where noted, comes from the Compustat data
 \caption{Compustat variable and abbreviation}
 \begin{center}
 {
+\resizebox{\textwidth}{!}{%
 \begin{tabular}{| l | l || l | l |}
 \hline
 Name & Abbreviation & Name & Abbreviation \\
@@ -1099,6 +1122,7 @@ Staff Expense - Wages and Salaries & xstfws & NAICS & naics \\
 \hline
 \end{tabular}
 }
+}
 \label{tab:table18}
 \end{center}
 \end{table}
@@ -1114,12 +1138,14 @@ All regressions in this section use the same controls as in the preceding one, a
 \subsection{Firm Data (Compustat) - Financial Constraints}
 The indexes used throughout this section in the main text can be found in \cite{RePEc:oup:rfinst:v:14:y:2001:i:2:p:529-54}, for the K-Z index and \cite{RePEc:oup:rfinst:v:19:y:2006:i:2:p:531-559}, for the eponymous W-W index. The former is calculated using the following formula:
 \begin{align*}
-KZ=-1.001909\cdot CF+0.2826389 \cdot Q+3.139193 \cdot D-39.3678 \cdot Div-1.314759\cdot Cash
+KZ=&-1.001909\cdot CF+0.2826389 \cdot Q+3.139193 \cdot D \\
+&-39.3678 \cdot Div-1.314759\cdot Cash
 \end{align*}
 
 Where $CF$ is the ratio of cash-flow (income before extraordinary items + depreciation and amortisation) to physical capital \footnote{Physical capital is always lagged one period in this formula and is measured as Property, Plant and Equipment (Net).}, $Q$ is Tobin's Q (total assets at+market value-common equity-deferred taxed/total assets), $D$ is total debt (long-term debt+debt in current liabilities/stockholders equity - parent + lont-term debt + debt in current liabilities), $Div$ is the ratio of dividends to physical capital and $Cash$ is the ratio of cash and liquid assets to physical capital. The W-W index, in turn, is calculated as:
 \begin{align*}
-WW=-0.091\cdot CF-0.062\cdot DP+0.021\cdot D-0.044\cdot ln(A)+0.102\cdot Sale_i-0.035\cdot Sale
+WW=&-0.091\cdot CF-0.062\cdot DP+0.021\cdot D \\
+&-0.044\cdot ln(A)+0.102\cdot Sale_i-0.035\cdot Sale
 \end{align*}
 
 Here, $CF$ is defined as above, $DP$ is an indicator variable for whether dividends were paid by that firm that year, $D$ is debt, also defined as above, $A$ is total assets, $Sale_i$ is the growth rate of sales for the industry\footnote{Industry here is defined as the NAICS code at the 3-digit level. As mentioned elsewhere, total sales are added up for all the firms belonging to the 3-digit group and the real growth rate calculated from that.} and, finally, $Sale$ is the growth rate of sales for the firm.
