@@ -43,3 +43,7 @@ paper/*.toc
 /paper/main.fls
 /paper/main.fdb_latexmk
 /paper/main.toc
+
+# Python
+__pycache__/
+*.py[cod]
