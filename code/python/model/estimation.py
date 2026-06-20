@@ -53,11 +53,17 @@ def prepare_regression_vars(panel: SimulatedPanel) -> pd.DataFrame:
     # but since θ is a constant, log differences are the same)
     df["log_Z"]  = np.log(df["Z"].clip(lower=1e-12))
     df["log_PY"] = np.log(df["Y"].clip(lower=1e-12))
+    # capx (Ĩ) is available now that K̃ fluctuates; it can be slightly negative
+    # in rare draws, so guard before logging.
+    if "I" in df.columns:
+        df["log_I"] = np.log(df["I"].clip(lower=1e-12))
 
     df = df.sort_values(["firm", "year"])
     df["dlog_Z"]  = df.groupby("firm")["log_Z"].diff()
     df["dlog_PY"] = df.groupby("firm")["log_PY"].diff()
     df["Z_PY_share"] = df["Z"] / df["Y"].clip(lower=1e-12)
+    if "log_I" in df.columns:
+        df["dlog_I"] = df.groupby("firm")["log_I"].diff()
 
     # Drop first observation (NaN from diff) and any inf/nan
     df = df.dropna(subset=["dlog_Z", "dlog_PY"])
@@ -136,14 +142,40 @@ def estimate_table4(panel: SimulatedPanel, gamma: float,
     res_B = run_fe_regression(df, dep_var="Z_PY_share", indep_var="dlog_PY",
                               label=f"Z/PY ~ Δlog(PY) | γ={gamma}")
 
+    # Spec capx: Δlog(I) on Δlog(PY) — capx growth (volatile margin).
+    if "dlog_I" in df.columns:
+        res_capx = run_fe_regression(df, dep_var="dlog_I", indep_var="dlog_PY",
+                                     label=f"Δlog(I) ~ Δlog(PY) | γ={gamma}")
+    else:
+        res_capx = {"label": "capx (unavailable)", "beta": np.nan, "n": 0}
+
+    # Investment-margin accelerator metrics (the clean way to show capx > R&D):
+    #   i/k slope : investment rate on Δlog sales — the textbook accelerator (>0)
+    #   z|i slope : R&D / total-investment ratio on Δlog sales — hypothesis 2 (<0)
+    res_ik = {"beta": np.nan}; res_zi = {"beta": np.nan}
+    if "I" in panel.df.columns:
+        d2 = df.copy()
+        d2["ik"] = d2["I_tilde"] / d2["K_tilde"] if "I_tilde" in d2.columns \
+            else d2["I"] / d2["K"].clip(lower=1e-12)
+        d2["zi"] = d2["Z"] / (d2["I"].clip(lower=1e-9) + d2["Z"])
+        d2 = d2.replace([np.inf, -np.inf], np.nan)
+        res_ik = run_fe_regression(d2.dropna(subset=["ik", "dlog_PY"]),
+                                   dep_var="ik", indep_var="dlog_PY")
+        res_zi = run_fe_regression(d2.dropna(subset=["zi", "dlog_PY"]),
+                                   dep_var="zi", indep_var="dlog_PY")
+
     return {
         "gamma":  gamma,
         "method": method,
         "spec_A": res_A,
         "spec_B": res_B,
+        "spec_capx": res_capx,
         # Convenience aliases
-        "beta_A": res_A.get("beta", np.nan),
-        "beta_B": res_B.get("beta", np.nan),
+        "beta_A":    res_A.get("beta", np.nan),
+        "beta_B":    res_B.get("beta", np.nan),
+        "beta_capx": res_capx.get("beta", np.nan),
+        "beta_ik":   res_ik.get("beta", np.nan),   # accelerator (i/k on sales), >0
+        "beta_zi":   res_zi.get("beta", np.nan),   # R&D/inv ratio on sales, <0
         "n_obs":  res_A.get("n", 0),
     }
 
@@ -158,15 +190,19 @@ def format_table4(results_list: list) -> pd.DataFrame:
       β_A:  0.319 0.344 0.372 0.404
       β_B: -0.004 -0.008 -0.011 -0.014
     """
+    def rnd(x, d):
+        return round(x, d) if (x is not None and not np.isnan(x)) else np.nan
     rows = []
     for r in results_list:
         rows.append({
             "gamma":  r["gamma"],
             "method": r["method"],
-            "beta_A": round(r["beta_A"], 3) if not np.isnan(r["beta_A"]) else np.nan,
-            "se_A":   round(r["spec_A"].get("se", np.nan), 5),   # 5 dp: SEs are ~0.0003
-            "beta_B": round(r["beta_B"], 5) if not np.isnan(r["beta_B"]) else np.nan,
-            "se_B":   round(r["spec_B"].get("se", np.nan), 5),
+            "beta_A": rnd(r["beta_A"], 3),                 # R&D smoothing (Δlog Z ~ Δlog PY)
+            "se_A":   round(r["spec_A"].get("se", np.nan), 5),
+            "beta_B": rnd(r["beta_B"], 5),                 # R&D/output share
+            "beta_capx": rnd(r.get("beta_capx", np.nan), 3),
+            "beta_ik": rnd(r.get("beta_ik", np.nan), 4),   # i/k accelerator (>0)
+            "beta_zi": rnd(r.get("beta_zi", np.nan), 4),   # R&D/total-inv ratio (<0)
             "n":      r["n_obs"],
         })
 

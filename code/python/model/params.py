@@ -70,6 +70,17 @@ class ModelParams:
     # We expose eta here so it can be overridden.
     eta: float   = None       # calibrated in steady_state.solve(); leave None
 
+    # ── Capital adjustment cost (Hayashi/Jermann q-theory) ────────────────────
+    # Convex cost on the investment rate: Φ(Ĩ,K̃) = (φ/2)(Ĩ/K̃ - δ̄)²·K̃,
+    # with δ̄ = δ + (λ-1)·P_SS the steady-state investment rate. Both Φ and Φ_I
+    # vanish at the SS, so Tobin's q = 1 there and the steady state is UNCHANGED
+    # from the frictionless model. φ makes capital genuinely predetermined and
+    # sluggish, so capx is procyclical and persistent (a clean accelerator)
+    # rather than the near-jump it is at φ=0. Calibrated so the capital stock's
+    # AR(1) root ≈ 0.85 (a standard firm-level persistence); see
+    # code/dynare/calibrate_phi.py. φ=0 recovers the frictionless 2-state model.
+    phi: float   = 2.0        # capital adjustment-cost curvature (cap. persistence ≈0.85)
+
     # ── Labour market ─────────────────────────────────────────────────────────
     W_bar: float = 1.0        # normalised wage
 
@@ -114,6 +125,12 @@ class ModelParams:
     def theta(self) -> float:
         """Revenue share coefficient = (ε-1)/ε = 1/mu."""
         return (self.eps - 1.0) / self.eps
+
+    @property
+    def delta_bar(self) -> float:
+        """Steady-state investment rate Ĩ_SS/K̃_SS = δ + (λ-1)·P_SS (the point
+        at which the capital adjustment cost and its derivative vanish)."""
+        return self.delta + (self.lam - 1.0) * self.P_SS
 
     @property
     def Lambda_SS(self) -> float:

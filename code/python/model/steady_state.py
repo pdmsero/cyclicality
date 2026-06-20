@@ -19,8 +19,8 @@ Step 2: From Ỹ = a_SS*K̃^α*L^(1-α) and K̃_SS=1:
 Step 3: W̄ is then pinned by the labour FOC:
           W̄ = (1-α)*θ*Ỹ_SS / L_SS
 
-Step 4: Base dividends (before Z̃):
-          base_D = θ*Ỹ_SS - W̄*L_SS - δ*K̃_SS = α*θ*Ỹ_SS - δ
+Step 4: Base dividends (before Z̃), option (a) — firm keeps full real revenue:
+          base_D = Ỹ_SS - W̄*L_SS - Ĩ_SS   (markup profit (1-θ)Ỹ retained in D̃)
 
 Step 5: Solve R&D FOC (with η calibrated to match P_SS) for Z̃_SS:
           D̃ = base_D - Z̃
@@ -87,15 +87,13 @@ def solve(p: ModelParams, a_SS: float = 1.0, verbose: bool = False) -> SteadySta
     # W̄ = (1-α)*θ*Ỹ/L
     W_bar_SS = (1.0-alpha)*theta*Y_tilde_SS / L_SS
 
-    # ── Step 4: Base dividends ─────────────────────────────────────────────────
-    # From paper (stationary system, eq after eq.288):
-    #   D̃ = θ*Ỹ - W̃*L - Ĩ - Z̃
-    # where Ĩ = (1+(λ-1)*P_SS)*K̃' - (1-δ)*K̃  (investment identity)
-    # At SS: K̃' = K̃ = K̃_SS, so:
-    #   Ĩ_SS = K̃_SS*(δ + (λ-1)*P_SS)
-    # base_D = θ*Ỹ - W̃*L - Ĩ_SS  (before subtracting Z̃)
+    # ── Step 4: Base dividends (option (a): firm collects full real revenue) ────
+    # Under the demand curve, real revenue at the symmetric equilibrium is r̃ = Ỹ
+    # (not θỸ); the markup profit (1-θ)Ỹ = Ỹ/ε accrues to the firm. So
+    #   D̃ = r̃ - W̄L - Ĩ - Z̃ = Ỹ - W̄L - Ĩ - Z̃,  with W̄L = (1-α)θỸ (labour FOC).
+    # Ĩ = (1+(λ-1)P)K̃' - (1-δ)K̃; at SS  Ĩ_SS = (δ + (λ-1)P_SS)·K̃_SS.
     I_SS = K_tilde_SS * (delta + (lam - 1.0) * P_SS)
-    base_D = theta*Y_tilde_SS - W_bar_SS*L_SS - I_SS
+    base_D = Y_tilde_SS - W_bar_SS*L_SS - I_SS
 
     if verbose:
         print(f"\n  Steady-state (K̃=1 normalisation, γ={gamma}):")
@@ -207,9 +205,9 @@ def check_ss(ss: SteadyState, p: ModelParams, tol: float = 1e-6) -> dict:
     # (5) Value function
     r5 = abs(V*(1-beta) - D)
 
-    # (6) Dividends: D̃ = θỸ - W̄L - Z̃ - Ĩ, where Ĩ = (δ+(λ-1)*P_SS)*K̃
+    # (6) Dividends (option (a)): D̃ = Ỹ - W̄L - Z̃ - Ĩ, where Ĩ = (δ+(λ-1)*P_SS)*K̃
     I_SS = K * (delta + (lam - 1.0) * ss.P)
-    r6 = abs(D - (theta*Y - W_bar*L - Z - I_SS))
+    r6 = abs(D - (Y - W_bar*L - Z - I_SS))
 
     residuals = {"production": r1, "labour_foc": r2, "capital_euler": r3,
                  "rnd_foc": r4, "value_fn": r5, "dividends": r6}
