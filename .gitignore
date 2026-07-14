@@ -1,11 +1,19 @@
 .env
 
+# OS / filesystem junk
+.DS_Store
+.fuse_hidden*
+
+# Local archive of superseded material (kept on disk, out of version control)
+/archive/
+
 # Pipeline-regenerable SQLite (do not store remote; rebuild from DVC-tracked inputs)
 data/cyclicality.db
 data/cyclicality.db-shm
 data/cyclicality.db-wal
 
 # litpipe runtime
+literature/literature.db
 literature/literature.db-shm
 literature/literature.db-wal
 literature/literature.db.bak
