@@ -1,6 +1,9 @@
 # Cyclicality of R&D at the Firm Level
 
-Python replication and extension workspace for the paper.
+Python replication and extension workspace for the paper. The original Table 4
+Dynare source was not preserved; `code/paper_simulation/` now contains an
+equation-based partial-equilibrium implementation and a runner that creates
+new firm-level simulation panels from the cited calibration.
 
 ## Project status (April 2026)
 
@@ -24,7 +27,8 @@ code/
   python/       Numbered pipeline scripts (01–40) + model/ subpackage
   stata/        Original Stata scripts used in the paper
   r/            Original R extraction scripts (superseded by Python pipeline)
-  dynare/       Dynare model files
+  dynare/       Later reconstructed model (includes capital adjustment costs)
+  paper_simulation/ Partial-equilibrium model from paper/main.tex; Dynare runner
 
 data/
   cyclicality.db          Canonical SQLite database (3.1 GB)

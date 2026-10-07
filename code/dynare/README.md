@@ -1,5 +1,7 @@
 # Dynare model files
 
+> **This is the later reconstructed model, not the paper's partial-equilibrium simulation.** It adds capital adjustment costs and a target-fitted TFP process. For the paper's firm-only model equations, see [`../paper_simulation/README.md`](../paper_simulation/README.md).
+
 ## Status: present and Blanchard–Kahn verified
 
 The firm-level R&D model is specified here as a Dynare/aether `.mod` system, one
